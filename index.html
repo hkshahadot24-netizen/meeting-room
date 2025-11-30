@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, interactive-widget=resizes-content" />
+  <title>মিটিং রুম — চ্যাট</title>
+  <style>
+    :root{
+      --bg:#f9fafb;
+      --primary-1: #ff5c8a; 
+      --primary-2: #ff2d55;
+      --muted:#6b7280;
+      --card-shadow: 0 6px 20px rgba(12,20,40,0.08);
+      --glass-border: rgba(255,255,255,0.3);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Bengali', 'Helvetica Neue', Arial;
+    }
+    
+    html, body {
+        height: 100%;
+        margin: 0;
+        background: linear-gradient(180deg, #fff 0%, #fff0f5 100%);
+        color: #111;
+        -webkit-tap-highlight-color: transparent;
+        overflow: hidden;
+    }
+
+    /* --- Splash Screen Styles (Added) --- */
+    #splash-screen {
+        position: fixed;
+        inset: 0;
+        background: white;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s ease-out, visibility 0.5s;
+    }
+
+    #splash-screen.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .splash-content {
+        text-align: center;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .splash-title {
+        font-size: 28px;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 24px;
+        letter-spacing: -0.5px;
+        animation: pulseText 2s infinite ease-in-out;
+    }
+
+    /* Modern Spinner */
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 92, 138, 0.1);
+        border-left-color: var(--primary-1);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    .splash-footer {
+        padding-bottom: 30px;
+        text-align: center;
+        width: 100%;
+    }
+
+    .org-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 4px;
+        letter-spacing: 0.3px;
+    }
+
+    .copyright {
+        font-size: 11px;
+        color: var(--muted);
+        font-family: monospace;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes pulseText { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+    /* --- End Splash Screen Styles --- */
+
+    .wrap {
+        max-width: 420px;
+        margin: 0 auto;
+        background: white;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    @media (min-width: 481px) {
+        .wrap {
+            margin: 18px auto;
+            border-radius: 18px;
+            height: calc(100vh - 36px) !important;
+            background: linear-gradient(180deg,rgba(255,255,255,0.95), rgba(255,240,245,0.95));
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+        }
+    }
+
+    header.app {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        background: white;
+        z-index: 10;
+        flex-shrink: 0; 
+        min-height: 50px;
+    }
+    
+    .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--primary-1),var(--primary-2));display:flex;align-items:center;justify-content:center;color:white;box-shadow:0 4px 12px rgba(255, 45, 85, 0.25)}
+    .title{flex:1}
+    .title h1{margin:0;font-size:16px; font-weight: 700; color: #1f2937;}
+    .title p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+
+    /* User Profile Clickable Area */
+    .user-info-area {
+        text-align: right;
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.3;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 8px;
+        transition: background 0.2s;
+        border: 1px solid transparent;
+    }
+    .user-info-area:active { background: #f3f4f6; }
+    .user-info-area:hover { background: #fff1f2; border-color: #fbcfe8; }
+
+    main.chat {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; 
+        background: #fffbfd;
+        position: relative;
+    }
+
+    .messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .msg{
+        display:block; max-width:80%; padding:10px 14px; border-radius:18px; 
+        position:relative; word-wrap:break-word; font-size: 15px; line-height: 1.5;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        user-select: none;
+        transition: transform 0.1s;
+        cursor: pointer;
+    }
+    .msg:active { transform: scale(0.98); }
+
+    .msg.me{
+        align-self: flex-end; 
+        background:linear-gradient(135deg, var(--primary-1), var(--primary-2)); 
+        color: white; 
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 2px 5px rgba(255, 45, 85, 0.2);
+    }
+    .msg.you{
+        align-self: flex-start; 
+        background: white; 
+        color: #1f2937; 
+        border-bottom-left-radius: 4px;
+        border: 1px solid #fce7f3;
+    }
+    
+    .msg.me .meta { color: rgba(255,255,255,0.8); }
+    .msg.you .meta { color: var(--muted); }
+    .msg.me .sender-name { display: none; }
+    .msg.you .sender-name { font-weight: 600; font-size: 11px; color: var(--primary-2); margin-bottom: 2px; }
+
+    .meta{font-size:10px;margin-top:4px;display:flex;gap:6px;align-items:center; justify-content: flex-end;}
+
+    .typing-indicator {
+        align-self: flex-start;
+        background: white;
+        padding: 12px 16px;
+        border-radius: 18px;
+        border-bottom-left-radius: 4px;
+        border: 1px solid #fce7f3;
+        display: none;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 8px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .typing-indicator.active { display: flex; animation: fadeIn 0.3s; }
+    .dot { width: 6px; height: 6px; background: #ff5c8a; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+    .dot:nth-child(1) { animation-delay: -0.32s; }
+    .dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    footer.input {
+        display: flex;
+        gap: 8px;
+        padding: 12px;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        align-items: flex-end; 
+        background: white;
+        flex-shrink: 0;
+    }
+    .input textarea{flex:1;border-radius:22px;padding:12px 16px;border:1px solid #fbcfe8; resize:none;font-size:15px; background: #fff0f7; outline: none; transition: all 0.2s; max-height: 100px;}
+    .input textarea:focus { border-color: var(--primary-1); background: white; box-shadow: 0 0 0 3px rgba(255, 92, 138, 0.15); }
+    .send-btn{background:linear-gradient(90deg,var(--primary-1),var(--primary-2));border:none;color:white;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer; flex-shrink: 0; box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);}
+
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;padding:20px; z-index: 1000;}
+    .modal-overlay.active { display: flex; }
+    .card{width:100%;max-width:320px;background:white;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
+    @keyframes popIn { from {transform: scale(0.95); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+
+    .action-sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
+    .action-sheet-overlay.active { display: flex; }
+    .action-sheet { width: 100%; max-width: 420px; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px 16px 30px; animation: slideUp 0.2s ease-out; display: flex; flex-direction: column; gap: 8px; }
+    @keyframes slideUp { from {transform: translateY(100%);} to {transform: translateY(0);} }
+    .sheet-btn { width: 100%; padding: 14px; border: none; background: #fff0f5; border-radius: 12px; font-size: 16px; font-weight: 600; color: #831843; cursor: pointer; text-align: center; }
+    .sheet-btn.danger { color: #ef4444; background: #fee2e2; }
+    
+    h2.modal-title{margin:0 0 10px 0; font-size: 20px; color: #111; font-weight: 700;}
+    .modal-body { font-size: 14px; color: #4b5563; margin-bottom: 20px; line-height: 1.5; }
+    .row{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+    .row input{padding:14px;border-radius:12px;border:1px solid #e5e7eb;font-size:15px; outline: none; transition: border 0.2s;}
+    .row input:focus { border-color: var(--primary-1); }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-primary{background:linear-gradient(90deg,var(--primary-1),var(--primary-2));color:white;padding:12px 24px;border-radius:14px;border:0;font-weight:600;cursor:pointer; font-size: 15px;}
+    .btn-secondary{background:transparent; color: var(--muted); border: 1px solid #e5e7eb; padding: 12px 20px; border-radius: 14px; font-weight: 600; cursor: pointer; font-size: 15px;}
+    .error-msg { color: #ef4444; font-size: 13px; margin-top: 4px; display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- SPLASH / LOADING SCREEN (Added) -->
+  <div id="splash-screen">
+    <div class="splash-content">
+        <div class="splash-title">Meeting Room</div>
+        <div class="spinner"></div>
+    </div>
+    <div class="splash-footer">
+        <div class="org-name">মেইন গেইট সমবায় সমিতি</div>
+        <div class="copyright">sahadot &copy; 2025</div>
+    </div>
+  </div>
+
+  <div class="wrap" id="app">
+    <header class="app">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      </div>
+      <div class="title">
+        <h1>মিটিং রুম</h1>
+        <p>আপনার মতামত জানান</p>
+      </div>
+      <!-- Added class 'user-info-area' and id 'headerProfile' -->
+      <div class="user-info-area" id="headerProfile" title="প্রোফাইল এডিট করতে ক্লিক করুন">
+        <div id="userNameSmall" style="font-weight: 600; color: var(--primary-2);"></div>
+        <div id="userPhoneSmall"></div>
+      </div>
+    </header>
+
+    <main class="chat">
+      <div class="messages" id="messages">
+        <!-- Messages will be injected here -->
+      </div>
+      
+      <div class="typing-indicator" id="typingIndicator">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+
+      <footer class="input">
+        <textarea id="messageInput" rows="1" placeholder="মতামত লিখুন..." maxlength="1000"></textarea>
+        <button class="send-btn" id="sendBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+        </button>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Entry/Edit Modal -->
+  <div class="modal-overlay active" id="entryModal">
+    <div class="card">
+      <h2 class="modal-title" id="entryTitle">স্বাগতম!</h2>
+      <div class="modal-body">মতামত জানাতে আপনার পরিচয় দিন।</div>
+      <div class="row">
+        <input id="nameInput" placeholder="আপনার নাম" />
+        <input id="phoneInput" placeholder="ফোন নম্বর" type="tel" />
+        <div id="entryError" class="error-msg">দয়া করে নাম এবং ফোন নম্বর দিন</div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn-secondary" id="guestBtn" style="font-size: 13px;">গেস্ট মোড</button>
+        <button class="btn-primary" id="enterBtn">প্রবেশ করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Options Sheet -->
+  <div class="action-sheet-overlay" id="optionsSheet">
+    <div class="action-sheet">
+        <div style="text-align:center; font-size:13px; color:#9ca3af; margin-bottom:4px;">অপশনস</div>
+        <button class="sheet-btn" id="optEdit">এডিট (Edit)</button>
+        <button class="sheet-btn danger" id="optDelete">ডিলেট (Delete)</button>
+        <button class="sheet-btn" id="optCancel">বন্ধ করুন</button>
+    </div>
+  </div>
+
+  <!-- Generic Modal -->
+  <div class="modal-overlay" id="dialogModal">
+    <div class="card">
+      <h2 class="modal-title" id="dTitle"></h2>
+      <div class="modal-body" id="dBody"></div>
+      <div class="row" id="dInputContainer" style="display:none;"><input id="dInput" /></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="dCancel">না</button>
+        <button class="btn-primary" id="dOk">হ্যাঁ</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+    import { getDatabase, ref, push, set, onValue, update, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDLxkzc6vwiVGIXH6yn7OPdTBj2eBkXCFw",
+      authDomain: "meeting-room-b743b.firebaseapp.com",
+      databaseURL: "https://meeting-room-b743b-default-rtdb.firebaseio.com",
+      projectId: "meeting-room-b743b",
+      storageBucket: "meeting-room-b743b.firebasestorage.app",
+      messagingSenderId: "324490946720",
+      appId: "1:324490946720:web:b27e2a7781b35a766a41c5",
+      measurementId: "G-1P9B5D3XX6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const messagesRef = ref(db, 'messages');
+    const typingRef = ref(db, 'typing');
+
+    const $ = sel => document.querySelector(sel);
+    const LS_USER = 'meeting_room_user_v1';
+    
+    let user = JSON.parse(localStorage.getItem(LS_USER) || 'null');
+    let currentMsgId = null;
+    let currentMsgText = null;
+    let longPressTimer;
+    let loadedMessages = [];
+
+    const messagesEl = $('#messages');
+    const appContainer = $('.wrap');
+    const typingInd = $('#typingIndicator');
+    const input = $('#messageInput');
+    const entryModal = $('#entryModal');
+    const nameSmall = $('#userNameSmall');
+    const phoneSmall = $('#userPhoneSmall');
+    const entryError = $('#entryError');
+    const headerProfile = $('#headerProfile');
+    const entryTitle = $('#entryTitle');
+    const guestBtn = $('#guestBtn');
+    const enterBtn = $('#enterBtn');
+
+    // --- SPLASH SCREEN LOGIC (Added) ---
+    window.addEventListener('load', () => {
+        const splash = document.getElementById('splash-screen');
+        setTimeout(() => {
+            splash.classList.add('hidden');
+        }, 2500); // 2.5 seconds delay
+    });
+
+    // --- 1. Dynamic Viewport ---
+    function adjustHeight() {
+        if (window.visualViewport) {
+            if (window.innerWidth <= 480) {
+                 appContainer.style.height = `${window.visualViewport.height}px`;
+            } else {
+                 appContainer.style.height = '100vh';
+            }
+            scrollToBottom(true);
+        }
+    }
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', adjustHeight);
+        window.visualViewport.addEventListener('scroll', adjustHeight);
+    }
+    window.addEventListener('resize', adjustHeight);
+    adjustHeight();
+
+    // --- 2. Auto-scroll ---
+    function isScrolledToBottom() {
+        return messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 100;
+    }
+
+    function scrollToBottom(force = false) {
+        if(force || isScrolledToBottom()) {
+            setTimeout(() => messagesEl.scrollTop = messagesEl.scrollHeight, 50);
+        }
+    }
+
+    // --- 3. Firebase Listeners ---
+    onValue(messagesRef, (snapshot) => {
+        const data = snapshot.val();
+        loadedMessages = [];
+        if (data) {
+            Object.keys(data).forEach(key => { loadedMessages.push({ id: key, ...data[key] }); });
+        }
+        renderMessages(loadedMessages);
+    });
+
+    onValue(typingRef, (snapshot) => {
+        const data = snapshot.val();
+        let isTyping = false;
+        if (data && user) {
+            Object.keys(data).forEach(key => {
+                if (key !== user.phoneSafe && (Date.now() - data[key].time < 3000)) { isTyping = true; }
+            });
+        }
+        if (isTyping) {
+            typingInd.classList.add('active');
+            messagesEl.parentNode.appendChild(typingInd); 
+            scrollToBottom();
+        } else {
+            typingInd.classList.remove('active');
+        }
+    });
+
+    // --- 4. Render Logic ---
+    function renderMessages(msgs){
+      const shouldScroll = isScrolledToBottom();
+      messagesEl.innerHTML = ''; 
+      msgs.forEach(m=>{
+        const isMe = user && m.senderPhone === user.phone;
+        const div = document.createElement('div'); 
+        div.className = 'msg ' + (isMe ? 'me' : 'you');
+        if(m.deleted) {
+          div.style.background = 'transparent'; div.style.border = '1px dashed #ccc'; div.style.color = '#999'; div.innerHTML = '<em style="font-size:12px;">মেসেজটি মুছে ফেলা হয়েছে</em>';
+        } else {
+          div.innerHTML = `
+            ${!isMe ? `<div class="sender-name">${escapeHtml(m.senderName)}</div>` : ''}
+            <div style="white-space:pre-wrap; word-break: break-word;">${escapeHtml(m.text)}</div>
+            <div class="meta"><div class="time">${formatTime(m.time)}</div></div>
+          `;
+          attachLongPress(div, m.id, m.text, isMe);
+        }
+        messagesEl.appendChild(div);
+      });
+      if (shouldScroll || msgs.length === 1) scrollToBottom(true);
+    }
+
+    // --- 5. User Input & Send ---
+    input.addEventListener('input', () => {
+        if(!user) return;
+        const userTypingRef = ref(db, `typing/${user.phoneSafe}`);
+        set(userTypingRef, { name: user.name, time: Date.now() });
+        onDisconnect(userTypingRef).remove();
+    });
+
+    $('#sendBtn').addEventListener('click', sendMessage);
+    input.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
+
+    function sendMessage(){ 
+      if(!user){ showEntry(false); return; }
+      const text = input.value.trim(); 
+      if(!text) return; 
+      push(messagesRef, { senderName: user.name, senderPhone: user.phone, text: text, time: Date.now(), status: 'sent', deleted: false });
+      input.value=''; 
+      remove(ref(db, `typing/${user.phoneSafe}`));
+      scrollToBottom(true);
+    }
+
+    // --- Modal & Profile Editing Logic ---
+    
+    function safePhone(p) { return p.replace(/[.#$/[\]]/g, '_'); }
+
+    function saveUser(u){ 
+        u.phoneSafe = safePhone(u.phone);
+        localStorage.setItem(LS_USER, JSON.stringify(u)); 
+        user = u; 
+        renderUserSmall(); 
+    }
+
+    function renderUserSmall(){ 
+        if(user){ 
+            nameSmall.textContent = user.name; 
+            phoneSmall.textContent = user.phone; 
+        } 
+    }
+
+    // Show Entry Modal (handles both New Entry and Edit)
+    function showEntry(isEdit = false){ 
+        entryModal.classList.add('active');
+        $('#nameInput').value = isEdit && user ? user.name : '';
+        $('#phoneInput').value = isEdit && user ? user.phone : '';
+        entryError.style.display = 'none';
+
+        if(isEdit) {
+            entryTitle.textContent = 'প্রোফাইল এডিট';
+            enterBtn.textContent = 'সেভ করুন';
+            guestBtn.style.display = 'none'; // Hide guest button when editing
+        } else {
+            entryTitle.textContent = 'স্বাগতম!';
+            enterBtn.textContent = 'প্রবেশ করুন';
+            guestBtn.style.display = 'block';
+        }
+    }
+
+    function hideEntry(){ entryModal.classList.remove('active'); }
+
+    // Click on Header to Edit Profile
+    headerProfile.addEventListener('click', () => {
+        showEntry(true); // Open in Edit Mode
+    });
+
+    // Save/Enter Button Click
+    enterBtn.addEventListener('click', ()=>{ 
+      const name = $('#nameInput').value.trim(); 
+      const phone = $('#phoneInput').value.trim(); 
+      if(!name || !phone){ entryError.style.display = 'block'; return; } 
+      saveUser({name, phone}); 
+      hideEntry(); 
+    });
+
+    guestBtn.addEventListener('click', ()=>{ 
+      const rnd = Math.floor(Math.random()*1000);
+      saveUser({name: 'Guest '+rnd, phone: 'guest_'+rnd}); 
+      hideEntry(); 
+    });
+
+    // --- Action Sheet & Utils ---
+    const optionsSheet = $('#optionsSheet');
+    function showOptions(id, text){ currentMsgId = id; currentMsgText = text; if(navigator.vibrate) navigator.vibrate(50); optionsSheet.classList.add('active'); }
+    function hideOptions(){ optionsSheet.classList.remove('active'); currentMsgId = null; }
+    $('#optCancel').addEventListener('click', hideOptions);
+    optionsSheet.addEventListener('click', (e)=>{ if(e.target === optionsSheet) hideOptions(); });
+    
+    $('#optEdit').addEventListener('click', ()=>{
+        if(!currentMsgId) return; const id = currentMsgId; const txt = currentMsgText; hideOptions();
+        dialog.prompt('মেসেজটি পরিবর্তন করুন:', txt, (newText)=>{
+            if(!newText) return; 
+            update(ref(db, `messages/${id}`), { text: newText });
+        });
+    });
+    
+    $('#optDelete').addEventListener('click', ()=>{
+        if(!currentMsgId) return; const id = currentMsgId; hideOptions();
+        dialog.confirm('মুছে ফেলতে চান?', ()=>{
+            update(ref(db, `messages/${id}`), { deleted: true, text: '' });
+        });
+    });
+
+    function attachLongPress(el, id, text, isMe){
+        if(!isMe) return;
+        const start = () => { longPressTimer = setTimeout(() => showOptions(id, text), 600); };
+        const end = () => { clearTimeout(longPressTimer); };
+        el.addEventListener('mousedown', start); el.addEventListener('touchstart', start, {passive: true});
+        el.addEventListener('mouseup', end); el.addEventListener('mouseleave', end); el.addEventListener('touchend', end); el.addEventListener('touchmove', end);
+        el.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
+    }
+
+    const dialog = {
+      el: $('#dialogModal'), title: $('#dTitle'), body: $('#dBody'), input: $('#dInput'), inputCont: $('#dInputContainer'), okBtn: $('#dOk'), cancelBtn: $('#dCancel'),
+      reset(){ this.inputCont.style.display='none'; this.el.classList.remove('active'); },
+      show(t, b, hasInput, onOk){
+        this.title.textContent=t; this.body.textContent=b; this.inputCont.style.display=hasInput?'flex':'none'; this.el.classList.add('active');
+        this.okBtn.onclick=()=>{ const v=hasInput?this.input.value:true; this.reset(); if(onOk) onOk(v); };
+        this.cancelBtn.onclick=()=>{ this.reset(); };
+      },
+      confirm(msg, onYes){ this.show('নিশ্চিত করুন', msg, false, onYes); },
+      prompt(msg, def, onEnter){ this.input.value=def||''; this.show('এডিট', msg, true, onEnter); setTimeout(()=>this.input.focus(),100); }
+    };
+
+    function formatTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
+    function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    if(!user) showEntry(false); else { hideEntry(); renderUserSmall(); }
+
+  </script>
+</body>
+</html>
+
