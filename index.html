@@ -165,14 +165,12 @@
     .scroll-bottom-btn.hidden { opacity: 0; pointer-events: none; transform: translate(-50%, 20px); }
     .scroll-bottom-btn:active { transform: translate(-50%, 2px); }
 
-    /* --- UPDATED INPUT AREA STYLES --- */
+    /* --- INPUT AREA --- */
     footer.input {
         display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid rgba(0,0,0,0.05);
         align-items: flex-end; background: white; flex-shrink: 0;
         box-shadow: 0 -1px 3px rgba(0,0,0,0.02);
     }
-    
-    /* Input Container (with Emoji) - No Attachment Button */
     .input-container {
         flex: 1; background: #fff0f7; border-radius: 24px; border: 1px solid #fbcfe8;
         padding: 8px 12px 8px 16px; display: flex; align-items: center; transition: all 0.2s;
@@ -182,29 +180,23 @@
         background: white; border-color: var(--primary-1); 
         box-shadow: 0 0 0 3px rgba(255, 92, 138, 0.15); 
     }
-    
     .input textarea {
         flex: 1; border: none; background: transparent; padding: 4px 0;
         resize: none; font-size: 15px; outline: none; 
         max-height: 120px; min-height: 24px; overflow-y: hidden; line-height: 1.4;
     }
-
-    /* Emoji Button (Inside input) */
     .emoji-btn {
         border: none; background: transparent; font-size: 20px; 
         cursor: pointer; padding: 0; opacity: 0.6; transition: opacity 0.2s;
         display: flex; align-items: center;
     }
     .emoji-btn:hover { opacity: 1; }
-
-    /* Send Button (Dynamic) */
     .send-btn {
         background: linear-gradient(90deg,var(--primary-1),var(--primary-2)); border:none; color:white;
         width: 44px; height: 44px; border-radius: 50%; display:flex; align-items:center; justify-content:center;
         cursor:pointer; flex-shrink: 0; box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3); 
         transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    /* Disabled state for Send Button */
     .send-btn:disabled {
         background: #e5e7eb; color: #9ca3af; box-shadow: none; cursor: default; transform: scale(0.95);
     }
@@ -290,7 +282,7 @@
         নতুন মেসেজ
       </div>
 
-      <!-- UPDATED INPUT AREA -->
+      <!-- Input Area -->
       <footer class="input">
         <div class="input-container">
             <textarea id="messageInput" rows="1" placeholder="মেসেজ লিখুন..."></textarea>
@@ -396,10 +388,8 @@
         // If on a small screen (mobile), stick to visualViewport height
         if (window.innerWidth < 600) {
             appContainer.style.height = `${window.visualViewport.height}px`;
-            // Crucial: Scroll to top to ensure header isn't pushed off-screen by browser quirks
             window.scrollTo(0, 0); 
         } else {
-            // Desktop fallback
             appContainer.style.height = '100%';
         }
         
@@ -448,8 +438,10 @@
         const data = snapshot.val();
         let isTyping = false;
         if (data && user) {
+            // Updated to check UID consistency
+            const myId = user.uid || user.phoneSafe; 
             Object.keys(data).forEach(key => {
-                if (key !== user.phoneSafe && (Date.now() - data[key].time < 3000)) isTyping = true;
+                if (key !== myId && (Date.now() - data[key].time < 3000)) isTyping = true;
             });
         }
         if (isTyping) {
@@ -475,9 +467,17 @@
         let lastDate = null;
 
         msgs.forEach((m, i) => {
-            const isMe = user && m.senderPhone === user.phone;
+            // Determine if message is mine (by UID preferred, fallback to phone)
+            const isMe = user && (m.uid === user.uid || m.senderPhone === user.phone);
             const prevM = msgs[i-1];
             const nextM = msgs[i+1];
+
+            // --- ADMIN FEATURE SUPPORT: SEEN LOGIC ---
+            // If message is not mine, and I haven't seen it yet, mark it.
+            // Restrict to last 20 messages to avoid massive write bursts on load
+            if (user && !isMe && (!m.seenBy || !m.seenBy[user.uid]) && (msgs.length - i <= 20)) {
+               markAsSeen(m.id);
+            }
 
             // 1. Date Divider Logic
             const msgDateObj = new Date(m.time);
@@ -537,6 +537,13 @@
         if (isUserNearBottom) scrollToBottom(true);
     }
 
+    // --- ADMIN COMPATIBILITY HELPERS ---
+    function markAsSeen(msgId) {
+        // Debounce simple to prevent spamming updates
+        const seenRef = ref(db, `messages/${msgId}/seenBy/${user.uid}`);
+        set(seenRef, Date.now()).catch(e => console.log("Seen update err", e));
+    }
+
     // --- AUTO-EXPAND & SEND BUTTON LOGIC ---
     function updateInputState() {
         const text = input.value.trim();
@@ -555,7 +562,9 @@
         // Typing Indicator Debounce
         if(!user) return;
         clearTimeout(typingTimeout);
-        const userTypingRef = ref(db, `typing/${user.phoneSafe}`);
+        // Use UID if available, else fallback
+        const myId = user.uid || user.phoneSafe; 
+        const userTypingRef = ref(db, `typing/${myId}`);
         set(userTypingRef, { name: user.name, time: Date.now() });
         
         typingTimeout = setTimeout(() => {
@@ -585,7 +594,17 @@
       if(!user){ showEntry(false); return; }
       const text = input.value.trim(); 
       if(!text) return; 
-      push(messagesRef, { senderName: user.name, senderPhone: user.phone, text: text, time: Date.now(), status: 'sent', deleted: false });
+      
+      // Include UID in message for Admin tracking
+      push(messagesRef, { 
+          senderName: user.name, 
+          senderPhone: user.phone, 
+          uid: user.uid, // NEW: Added UID
+          text: text, 
+          time: Date.now(), 
+          status: 'sent', 
+          deleted: false 
+      });
       
       // Reset Input
       input.value=''; 
@@ -594,17 +613,33 @@
       input.focus();
       
       clearTimeout(typingTimeout);
-      remove(ref(db, `typing/${user.phoneSafe}`));
+      const myId = user.uid || user.phoneSafe;
+      remove(ref(db, `typing/${myId}`));
       scrollToBottom(true);
     }
 
     // --- User & Modals ---
     function safePhone(p) { return p.replace(/[.#$/[\]]/g, '_'); }
+    
     function saveUser(u){ 
         u.phoneSafe = safePhone(u.phone);
+        // Ensure UID exists (using phoneSafe as stable ID for now)
+        if(!u.uid) u.uid = u.phoneSafe; 
+
         localStorage.setItem(LS_USER, JSON.stringify(u)); 
-        user = u; renderUserSmall(); 
+        user = u; 
+        renderUserSmall(); 
+        
+        // NEW: Sync User Data to DB so Admin can see the user list
+        // This is invisible to the normal user but crucial for Admin
+        update(ref(db, `users/${u.uid}`), {
+            name: u.name,
+            phone: u.phone,
+            uid: u.uid,
+            lastSeen: Date.now()
+        });
     }
+
     function renderUserSmall(){ 
         if(user){ $('#userNameSmall').textContent=user.name; $('#userPhoneSmall').textContent=user.phone; } 
     }
@@ -624,10 +659,15 @@
     $('#enterBtn').addEventListener('click', ()=>{ 
       const name = $('#nameInput').value.trim(); const phone = $('#phoneInput').value.trim(); 
       if(!name || !phone){ $('#entryError').style.display = 'block'; return; } 
-      saveUser({name, phone}); hideEntry(); 
+      // If editing existing user, preserve UID
+      const newUser = { name, phone, uid: user ? user.uid : null };
+      saveUser(newUser); hideEntry(); 
     });
     $('#guestBtn').addEventListener('click', ()=>{ 
-      const rnd = Math.floor(Math.random()*1000); saveUser({name: 'Guest '+rnd, phone: 'guest_'+rnd}); hideEntry(); 
+      const rnd = Math.floor(Math.random()*1000); 
+      // Guest UID
+      const gPhone = 'guest_'+rnd;
+      saveUser({name: 'Guest '+rnd, phone: gPhone, uid: gPhone}); hideEntry(); 
     });
 
     // --- Actions ---
