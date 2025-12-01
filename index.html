@@ -27,28 +27,55 @@
         width: 100%;
     }
 
-    /* --- Splash Screen --- */
+    /* --- Splash Screen (MODERNIZED) --- */
     #splash-screen {
         position: fixed; inset: 0; background: white; z-index: 9999;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         transition: opacity 0.5s ease-out, visibility 0.5s;
     }
     #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    
+    .splash-content {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        margin-bottom: 40px; /* Offset for visual balance */
+    }
+
     .splash-title {
-        font-size: 28px; font-weight: 800;
+        font-size: 32px; font-weight: 800;
         background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        margin-bottom: 24px; animation: pulseText 2s infinite ease-in-out;
+        margin-bottom: 30px; letter-spacing: -0.5px;
     }
+
+    /* Modern Double Ring Spinner */
     .spinner {
-        width: 40px; height: 40px; border: 3px solid rgba(255, 92, 138, 0.1);
-        border-left-color: var(--primary-1); border-radius: 50%; animation: spin 0.8s linear infinite;
+        width: 50px; height: 50px; position: relative;
     }
-    .splash-footer { padding-bottom: 30px; text-align: center; width: 100%; }
-    .org-name { font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
-    .copyright { font-size: 11px; color: var(--muted); font-family: monospace; }
+    .spinner::before, .spinner::after {
+        content: ''; position: absolute; inset: 0; border-radius: 50%;
+        border: 3px solid transparent;
+    }
+    .spinner::before {
+        border-top-color: var(--primary-2);
+        animation: spin 1s linear infinite;
+    }
+    .spinner::after {
+        border-bottom-color: var(--primary-1);
+        animation: spin 1.5s linear infinite reverse; /* Opposite direction speed */
+        inset: 6px; /* Inner ring smaller */
+    }
+    
+    .splash-footer { 
+        position: absolute; bottom: 40px; left: 0; width: 100%; text-align: center; 
+    }
+    .org-name { 
+        font-size: 15px; font-weight: 600; color: #374151; 
+        padding: 8px 16px; background: rgba(255,255,255,0.8);
+        border-radius: 20px; display: inline-block;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+    
     @keyframes spin { 100% { transform: rotate(360deg); } }
-    @keyframes pulseText { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
 
     /* --- Main Layout --- */
     .wrap {
@@ -197,6 +224,9 @@
         cursor:pointer; flex-shrink: 0; box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3); 
         transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+    .send-btn svg {
+        pointer-events: none; /* Ensures click hits button, not SVG */
+    }
     .send-btn:disabled {
         background: #e5e7eb; color: #9ca3af; box-shadow: none; cursor: default; transform: scale(0.95);
     }
@@ -234,13 +264,12 @@
 
   <!-- SPLASH SCREEN -->
   <div id="splash-screen">
-    <div class="splash-content" style="text-align: center;">
+    <div class="splash-content">
         <div class="splash-title">Meeting Room</div>
-        <div class="spinner" style="margin: 0 auto;"></div>
+        <div class="spinner"></div>
     </div>
     <div class="splash-footer">
         <div class="org-name">মেইন গেইট সমবায় সমিতি</div>
-        <div class="copyright">sahadot &copy; 2025</div>
     </div>
   </div>
 
@@ -366,6 +395,7 @@
     let loadedMessages = [];
     let isUserNearBottom = true;
     let typingTimeout;
+    let isSending = false; 
 
     const messagesEl = $('#messages');
     const appContainer = $('.wrap');
@@ -374,7 +404,7 @@
     const scrollBtn = $('#scrollBtn');
     const emptyState = $('#emptyState');
     const entryModal = $('#entryModal');
-    const sendBtn = $('#sendBtn'); // Ref needed for disabling
+    const sendBtn = $('#sendBtn'); 
     
     // Splash Screen
     window.addEventListener('load', () => {
@@ -388,7 +418,6 @@
         // If on a small screen (mobile), stick to visualViewport height
         if (window.innerWidth < 600) {
             appContainer.style.height = `${window.visualViewport.height}px`;
-            window.scrollTo(0, 0); 
         } else {
             appContainer.style.height = '100%';
         }
@@ -402,7 +431,6 @@
         window.visualViewport.addEventListener('scroll', adjustHeight);
     }
     window.addEventListener('resize', adjustHeight);
-    // Initial call
     adjustHeight();
 
     // Scroll Logic
@@ -438,7 +466,6 @@
         const data = snapshot.val();
         let isTyping = false;
         if (data && user) {
-            // Updated to check UID consistency
             const myId = user.uid || user.phoneSafe; 
             Object.keys(data).forEach(key => {
                 if (key !== myId && (Date.now() - data[key].time < 3000)) isTyping = true;
@@ -467,14 +494,10 @@
         let lastDate = null;
 
         msgs.forEach((m, i) => {
-            // Determine if message is mine (by UID preferred, fallback to phone)
             const isMe = user && (m.uid === user.uid || m.senderPhone === user.phone);
             const prevM = msgs[i-1];
             const nextM = msgs[i+1];
 
-            // --- ADMIN FEATURE SUPPORT: SEEN LOGIC ---
-            // If message is not mine, and I haven't seen it yet, mark it.
-            // Restrict to last 20 messages to avoid massive write bursts on load
             if (user && !isMe && (!m.seenBy || !m.seenBy[user.uid]) && (msgs.length - i <= 20)) {
                markAsSeen(m.id);
             }
@@ -537,14 +560,11 @@
         if (isUserNearBottom) scrollToBottom(true);
     }
 
-    // --- ADMIN COMPATIBILITY HELPERS ---
     function markAsSeen(msgId) {
-        // Debounce simple to prevent spamming updates
         const seenRef = ref(db, `messages/${msgId}/seenBy/${user.uid}`);
         set(seenRef, Date.now()).catch(e => console.log("Seen update err", e));
     }
 
-    // --- AUTO-EXPAND & SEND BUTTON LOGIC ---
     function updateInputState() {
         const text = input.value.trim();
         
@@ -562,7 +582,6 @@
         // Typing Indicator Debounce
         if(!user) return;
         clearTimeout(typingTimeout);
-        // Use UID if available, else fallback
         const myId = user.uid || user.phoneSafe; 
         const userTypingRef = ref(db, `typing/${myId}`);
         set(userTypingRef, { name: user.name, time: Date.now() });
@@ -574,17 +593,24 @@
 
     input.addEventListener('input', updateInputState);
 
-    sendBtn.addEventListener('click', sendMessage);
+    // FIXED: SEND LOGIC
+    sendBtn.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        sendMessage();
+    });
+
     input.addEventListener('keydown', (e)=>{ 
+        // FIXED: Check for IME composition
+        if (e.isComposing || e.keyCode === 229) {
+            return;
+        }
         if(e.key==='Enter' && !e.shiftKey){ 
             e.preventDefault(); 
             if(!sendBtn.disabled) sendMessage(); 
         } 
     });
 
-    // Emoji Button Logic
     $('#emojiBtn').addEventListener('click', () => {
-        // Simple emoji insert
         input.value += '😊';
         updateInputState();
         input.focus();
@@ -592,24 +618,31 @@
 
     function sendMessage(){ 
       if(!user){ showEntry(false); return; }
+      if(isSending) return; 
+
       const text = input.value.trim(); 
       if(!text) return; 
       
-      // Include UID in message for Admin tracking
+      isSending = true; 
+      sendBtn.disabled = true;
+
       push(messagesRef, { 
           senderName: user.name, 
           senderPhone: user.phone, 
-          uid: user.uid, // NEW: Added UID
+          uid: user.uid, 
           text: text, 
           time: Date.now(), 
           status: 'sent', 
           deleted: false 
+      }).then(() => {
+          isSending = false; 
+      }).catch(() => {
+          isSending = false;
       });
       
       // Reset Input
       input.value=''; 
       input.style.height = 'auto'; 
-      sendBtn.disabled = true; // Disable after send
       input.focus();
       
       clearTimeout(typingTimeout);
@@ -623,15 +656,12 @@
     
     function saveUser(u){ 
         u.phoneSafe = safePhone(u.phone);
-        // Ensure UID exists (using phoneSafe as stable ID for now)
         if(!u.uid) u.uid = u.phoneSafe; 
 
         localStorage.setItem(LS_USER, JSON.stringify(u)); 
         user = u; 
         renderUserSmall(); 
         
-        // NEW: Sync User Data to DB so Admin can see the user list
-        // This is invisible to the normal user but crucial for Admin
         update(ref(db, `users/${u.uid}`), {
             name: u.name,
             phone: u.phone,
@@ -659,13 +689,11 @@
     $('#enterBtn').addEventListener('click', ()=>{ 
       const name = $('#nameInput').value.trim(); const phone = $('#phoneInput').value.trim(); 
       if(!name || !phone){ $('#entryError').style.display = 'block'; return; } 
-      // If editing existing user, preserve UID
       const newUser = { name, phone, uid: user ? user.uid : null };
       saveUser(newUser); hideEntry(); 
     });
     $('#guestBtn').addEventListener('click', ()=>{ 
       const rnd = Math.floor(Math.random()*1000); 
-      // Guest UID
       const gPhone = 'guest_'+rnd;
       saveUser({name: 'Guest '+rnd, phone: gPhone, uid: gPhone}); hideEntry(); 
     });
@@ -716,3 +744,5 @@
   </script>
 </body>
 </html>
+
+
