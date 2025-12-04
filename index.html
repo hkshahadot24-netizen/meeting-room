@@ -422,7 +422,7 @@
     let currentMsgId = null;
     let currentMsgText = null;
     let longPressTimer;
-    let loadedMessages = [];
+    // REMOVED GLOBAL loadedMessages to prevent state leakage
     let isUserNearBottom = true;
     let typingTimeout;
     let isSending = false; 
@@ -515,17 +515,16 @@
         }
     });
 
-    // --- MESSAGES RENDER LOGIC (Fixed for Duplicates) ---
+    // --- MESSAGES RENDER LOGIC (FIXED FOR DUPLICATES) ---
     onValue(messagesRef, (snapshot) => {
         const data = snapshot.val();
-        loadedMessages = [];
+        let loadedMessages = []; // Use local variable
         if (data) {
-            // Sort by time just in case, though push ID usually handles order
             loadedMessages = Object.keys(data)
                 .map(key => ({ id: key, ...data[key] }))
                 .sort((a, b) => a.time - b.time);
         }
-        // Strict Full Re-render to prevent ANY duplicates
+        // Strict Full Re-render with De-duplication
         renderMessages(loadedMessages);
     });
 
@@ -540,6 +539,7 @@
         }
         if (isTyping) {
             typingInd.classList.add('active');
+            // Append to parent, outside of messages container
             messagesEl.parentNode.appendChild(typingInd); 
             scrollToBottom();
         } else {
@@ -550,35 +550,46 @@
     // Helper: Detect Image URL or Base64
     function isImageContent(txt) {
         if(!txt) return false;
-        // Check for Base64 image
         if(txt.startsWith('data:image/')) return true;
-        // Check for URL
         return(txt.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) != null);
     }
 
     function renderMessages(msgs){
-        messagesEl.innerHTML = ''; // CRITICAL: Wipe clean before rendering to fix double msg issue
+        // 1. Strict De-duplication before rendering
+        // Even though Object.keys ensures unique keys, this is a safety net for any merge issues
+        const uniqueMsgs = [];
+        const seenIds = new Set();
+        
+        msgs.forEach(m => {
+            if(!seenIds.has(m.id)){
+                seenIds.add(m.id);
+                uniqueMsgs.push(m);
+            }
+        });
 
-        if(msgs.length === 0) {
+        if(uniqueMsgs.length === 0) {
+            messagesEl.innerHTML = '';
             emptyState.style.display = 'flex';
             messagesEl.appendChild(emptyState);
             return;
         }
         emptyState.style.display = 'none';
 
+        // 2. Use DocumentFragment for atomic DOM update (Prevents visual flashing/duplication)
+        const fragment = document.createDocumentFragment();
         let lastDate = null;
 
-        msgs.forEach((m, i) => {
+        uniqueMsgs.forEach((m, i) => {
             const isMe = user && (m.uid === user.uid || m.senderPhone === user.phone);
-            const prevM = msgs[i-1];
-            const nextM = msgs[i+1];
+            const prevM = uniqueMsgs[i-1];
+            const nextM = uniqueMsgs[i+1];
 
-            // Mark as seen logic (lazy)
-            if (user && !isMe && (!m.seenBy || !m.seenBy[user.uid]) && (msgs.length - i <= 10)) {
+            // Mark as seen logic
+            if (user && !isMe && (!m.seenBy || !m.seenBy[user.uid]) && (uniqueMsgs.length - i <= 10)) {
                markAsSeen(m.id);
             }
 
-            // 1. Date Divider
+            // Date Divider
             const msgDateObj = new Date(m.time);
             const dateStr = msgDateObj.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
             
@@ -592,11 +603,11 @@
                 if(dateStr === today) label = "আজ";
                 else if(dateStr === yesterday) label = "গতকাল";
                 dateDiv.innerHTML = `<span>${label}</span>`;
-                messagesEl.appendChild(dateDiv);
+                fragment.appendChild(dateDiv);
                 lastDate = dateStr;
             }
 
-            // 2. Grouping
+            // Grouping
             const isFirst = !prevM || prevM.senderPhone !== m.senderPhone || (new Date(prevM.time).toDateString() !== msgDateObj.toDateString());
             const isLast = !nextM || nextM.senderPhone !== m.senderPhone || (new Date(nextM.time).toDateString() !== msgDateObj.toDateString());
             
@@ -606,9 +617,10 @@
             else if (!isFirst && !isLast) groupClass = 'middle-of-group';
             else if (!isFirst && isLast) groupClass = 'last-of-group';
 
-            // 3. Create Element
+            // Create Element
             const div = document.createElement('div'); 
             div.className = `msg ${isMe ? 'me' : 'you'} ${groupClass}`;
+            div.id = `msg-${m.id}`; // Add unique ID to DOM element
             
             if(m.deleted) {
                 div.style.background = 'transparent'; div.style.border = '1px dashed #e5e7eb'; div.style.color = '#9ca3af'; 
@@ -632,11 +644,14 @@
                         <div class="time">${formatTime(m.time)}</div>
                     </div>
                 `;
-                // Long press actions
                 attachLongPress(div, m.id, m.text, isMe);
             }
-            messagesEl.appendChild(div);
+            fragment.appendChild(div);
         });
+
+        // 3. Clear and append Fragment in ONE go
+        messagesEl.innerHTML = '';
+        messagesEl.appendChild(fragment);
 
         if (isUserNearBottom) scrollToBottom(true);
     }
@@ -676,7 +691,6 @@
             try {
                 // Auto convert/compress
                 const base64Img = await compressImage(file);
-                // Confirm before sending
                 const confirmSend = confirm("ছবিটি পাঠাতে চান?");
                 if(confirmSend) {
                     sendMessage(base64Img, true);
@@ -691,7 +705,7 @@
         }
     });
 
-    // Compressor Function (Max 800px width, 0.7 quality)
+    // Compressor Function
     function compressImage(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -714,7 +728,7 @@
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to 70% quality JPEG
+                    resolve(canvas.toDataURL('image/jpeg', 0.7)); 
                 };
                 img.onerror = (err) => reject(err);
             };
@@ -749,7 +763,7 @@
           senderName: user.name, 
           senderPhone: user.phone, 
           uid: user.uid, 
-          text: text, // Stores text OR base64 image string
+          text: text, 
           time: Date.now(), 
           status: 'sent', 
           deleted: false 
@@ -846,4 +860,3 @@
   </script>
 </body>
 </html>
-
