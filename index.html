@@ -150,6 +150,7 @@
         margin-top: 4px;
         display: block;
         min-height: 100px; background: #f0f0f0;
+        cursor: zoom-in; /* Indicate zoom capability */
     }
 
     .msg.me {
@@ -269,6 +270,40 @@
     .btn-primary { background: var(--primary-2); color:white; padding:12px 24px; border-radius:12px; border:0; font-weight:600; cursor:pointer; font-size: 15px; width: 100%; }
     .btn-secondary { background:transparent; color: var(--muted); border: 1px solid #e5e7eb; padding: 12px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px; }
     .error-msg { color: #ef4444; font-size: 13px; margin-top: 4px; display: none; }
+
+    /* --- IMAGE VIEWER STYLES --- */
+    .viewer-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000;
+        display: none; flex-direction: column; justify-content: center; align-items: center;
+        opacity: 0; transition: opacity 0.3s;
+    }
+    .viewer-overlay.active { display: flex; opacity: 1; }
+    .viewer-container {
+        width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        cursor: grab;
+    }
+    .viewer-container:active { cursor: grabbing; }
+    .viewer-img {
+        max-width: 100%; max-height: 100%; transition: transform 0.1s ease-out;
+        transform-origin: center center; user-select: none; pointer-events: auto;
+    }
+    .viewer-header {
+        position: absolute; top: 0; left: 0; right: 0; padding: 15px;
+        display: flex; justify-content: space-between; z-index: 10001;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+    }
+    .v-btn {
+        background: rgba(255,255,255,0.2); border: none; color: white;
+        width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; backdrop-filter: blur(4px); transition: background 0.2s;
+    }
+    .v-btn:hover { background: rgba(255,255,255,0.3); }
+    .viewer-controls {
+        position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+        display: flex; gap: 12px; z-index: 10001;
+        background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 30px;
+        backdrop-filter: blur(4px);
+    }
   </style>
 </head>
 <body>
@@ -288,6 +323,24 @@
   <div class="loading-overlay" id="imgLoader">
       <div class="spinner"></div>
       <div class="loading-text">ইমেজ কনভার্ট হচ্ছে...</div>
+  </div>
+
+  <!-- IMAGE VIEWER -->
+  <div id="imageViewer" class="viewer-overlay">
+      <div class="viewer-header">
+          <button class="v-btn" id="vClose" title="বন্ধ করুন">✕</button>
+          <button class="v-btn" id="vDownload" title="ডাউনলোড">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+          </button>
+      </div>
+      <div class="viewer-container" id="vContainer">
+          <img class="viewer-img" id="vImage" src="" alt="Full View"/>
+      </div>
+      <div class="viewer-controls">
+          <button class="v-btn" id="vZoomOut" title="জুম আউট">－</button>
+          <button class="v-btn" id="vReset" title="রিসেট">1:1</button>
+          <button class="v-btn" id="vZoomIn" title="জুম ইন">＋</button>
+      </div>
   </div>
 
   <div class="wrap" id="app">
@@ -422,6 +475,7 @@
     let currentMsgId = null;
     let currentMsgText = null;
     let longPressTimer;
+    let isLongPressTriggered = false; // Add flag to distinguish long press from click
     // REMOVED GLOBAL loadedMessages to prevent state leakage
     let isUserNearBottom = true;
     let typingTimeout;
@@ -555,8 +609,6 @@
     }
 
     function renderMessages(msgs){
-        // 1. Strict De-duplication before rendering
-        // Even though Object.keys ensures unique keys, this is a safety net for any merge issues
         const uniqueMsgs = [];
         const seenIds = new Set();
         
@@ -575,7 +627,6 @@
         }
         emptyState.style.display = 'none';
 
-        // 2. Use DocumentFragment for atomic DOM update (Prevents visual flashing/duplication)
         const fragment = document.createDocumentFragment();
         let lastDate = null;
 
@@ -620,7 +671,7 @@
             // Create Element
             const div = document.createElement('div'); 
             div.className = `msg ${isMe ? 'me' : 'you'} ${groupClass}`;
-            div.id = `msg-${m.id}`; // Add unique ID to DOM element
+            div.id = `msg-${m.id}`;
             
             if(m.deleted) {
                 div.style.background = 'transparent'; div.style.border = '1px dashed #e5e7eb'; div.style.color = '#9ca3af'; 
@@ -631,7 +682,8 @@
                 
                 let contentHTML;
                 if(isImg) {
-                    contentHTML = `<img src="${m.text}" class="chat-img" loading="lazy" alt="Image" />`;
+                    // Added data-src for easy access in viewer
+                    contentHTML = `<img src="${m.text}" data-src="${m.text}" class="chat-img" loading="lazy" alt="Image" />`;
                 } else {
                     contentHTML = `<div style="white-space:pre-wrap; word-break: break-word;">${escapeHtml(m.text)}</div>`;
                 }
@@ -649,7 +701,6 @@
             fragment.appendChild(div);
         });
 
-        // 3. Clear and append Fragment in ONE go
         messagesEl.innerHTML = '';
         messagesEl.appendChild(fragment);
 
@@ -815,7 +866,11 @@
 
     // --- Actions ---
     const optionsSheet = $('#optionsSheet');
-    function showOptions(id, text){ currentMsgId = id; currentMsgText = text; if(navigator.vibrate) navigator.vibrate(50); optionsSheet.classList.add('active'); }
+    function showOptions(id, text){ 
+        currentMsgId = id; currentMsgText = text; 
+        if(navigator.vibrate) navigator.vibrate(50); 
+        optionsSheet.classList.add('active'); 
+    }
     function hideOptions(){ optionsSheet.classList.remove('active'); currentMsgId = null; }
     $('#optCancel').addEventListener('click', hideOptions);
     optionsSheet.addEventListener('click', (e)=>{ if(e.target === optionsSheet) hideOptions(); });
@@ -834,13 +889,150 @@
     });
 
     function attachLongPress(el, id, text, isMe){
+        // Updated logic to support both long press and normal click
         if(!isMe) return;
-        const start = () => { longPressTimer = setTimeout(() => showOptions(id, text), 600); };
+        const start = () => { 
+            isLongPressTriggered = false;
+            longPressTimer = setTimeout(() => {
+                isLongPressTriggered = true;
+                showOptions(id, text);
+            }, 600); 
+        };
         const end = () => { clearTimeout(longPressTimer); };
         el.addEventListener('mousedown', start); el.addEventListener('touchstart', start, {passive: true});
         el.addEventListener('mouseup', end); el.addEventListener('mouseleave', end); el.addEventListener('touchend', end); el.addEventListener('touchmove', end);
         el.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
     }
+
+    // --- IMAGE VIEWER LOGIC ---
+    const viewer = $('#imageViewer');
+    const vImage = $('#vImage');
+    const vContainer = $('#vContainer');
+    let scale = 1;
+    let pointX = 0;
+    let pointY = 0;
+    let pPanning = false;
+    let startX = 0;
+    let startY = 0;
+
+    // Open Viewer on Click
+    messagesEl.addEventListener('click', (e) => {
+        if(e.target.classList.contains('chat-img')) {
+            // Prevent opening if long press action was just triggered (for own messages)
+            if(isLongPressTriggered) {
+                isLongPressTriggered = false;
+                return;
+            }
+            if(optionsSheet.classList.contains('active')) return;
+            
+            const src = e.target.getAttribute('data-src') || e.target.src;
+            openViewer(src);
+        }
+    });
+
+    function openViewer(src) {
+        vImage.src = src;
+        viewer.classList.add('active');
+        resetZoom();
+    }
+
+    function closeViewer() {
+        viewer.classList.remove('active');
+        vImage.src = '';
+    }
+
+    function updateTransform() {
+        vImage.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+    }
+
+    function resetZoom() {
+        scale = 1; pointX = 0; pointY = 0;
+        updateTransform();
+    }
+
+    // Controls
+    $('#vClose').addEventListener('click', closeViewer);
+    $('#vReset').addEventListener('click', resetZoom);
+    
+    $('#vZoomIn').addEventListener('click', () => {
+        scale += 0.5; updateTransform();
+    });
+    
+    $('#vZoomOut').addEventListener('click', () => {
+        if(scale > 0.5) scale -= 0.5;
+        updateTransform();
+    });
+
+    // Download
+    $('#vDownload').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = vImage.src;
+        link.download = `meeting-room-image-${Date.now()}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+
+    // Panning Logic (Mouse/Touch)
+    vContainer.addEventListener('mousedown', (e) => {
+        if(scale > 1) {
+            pPanning = true;
+            startX = e.clientX - pointX;
+            startY = e.clientY - pointY;
+            e.preventDefault();
+        }
+    });
+    
+    window.addEventListener('mousemove', (e) => {
+        if(!pPanning) return;
+        pointX = e.clientX - startX;
+        pointY = e.clientY - startY;
+        updateTransform();
+    });
+
+    window.addEventListener('mouseup', () => pPanning = false);
+
+    // Touch Panning
+    vContainer.addEventListener('touchstart', (e) => {
+        if(scale > 1 && e.touches.length === 1) {
+            pPanning = true;
+            startX = e.touches[0].clientX - pointX;
+            startY = e.touches[0].clientY - pointY;
+        }
+    }, {passive: false});
+
+    window.addEventListener('touchmove', (e) => {
+        if(!pPanning) return;
+        if(e.cancelable) e.preventDefault(); // Prevent scrolling bg
+        pointX = e.touches[0].clientX - startX;
+        pointY = e.touches[0].clientY - startY;
+        updateTransform();
+    }, {passive: false});
+
+    window.addEventListener('touchend', () => pPanning = false);
+
+    // Double Tap/Click to Zoom
+    let lastTap = 0;
+    vContainer.addEventListener('click', (e) => {
+        const curTime = new Date().getTime();
+        const tapLen = curTime - lastTap;
+        if (tapLen < 300 && tapLen > 0) {
+            if(scale === 1) scale = 2; else scale = 1;
+            pointX = 0; pointY = 0;
+            updateTransform();
+            e.preventDefault();
+        }
+        lastTap = curTime;
+    });
+
+    // Wheel Zoom
+    vContainer.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if(e.deltaY < 0) scale += 0.1;
+        else if(scale > 0.5) scale -= 0.1;
+        updateTransform();
+    }, {passive: false});
+
 
     const dialog = {
       el: $('#dialogModal'), title: $('#dTitle'), body: $('#dBody'), input: $('#dInput'), inputCont: $('#dInputContainer'), okBtn: $('#dOk'), cancelBtn: $('#dCancel'),
