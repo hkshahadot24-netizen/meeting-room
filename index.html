@@ -12,60 +12,67 @@
       --muted:#6b7280;
       --card-shadow: 0 6px 20px rgba(12,20,40,0.08);
       --glass-border: rgba(255,255,255,0.3);
+      --msg-bg-you: white;
+      --msg-text-you: #1f2937;
+      --app-bg: linear-gradient(180deg, #fff 0%, #fff0f5 100%);
+      --header-bg: white;
+      --input-bg: white;
+      --input-box-bg: #fff0f7;
+      --border-color: rgba(0,0,0,0.05);
+      --admin-color: #7c3aed; /* Admin Theme Color */
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Bengali', 'Helvetica Neue', Arial;
+    }
+
+    /* Dark Mode Variables */
+    [data-theme="dark"] {
+      --bg: #111827;
+      --primary-1: #db2777;
+      --primary-2: #be185d;
+      --muted: #9ca3af;
+      --card-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      --glass-border: rgba(255,255,255,0.1);
+      --msg-bg-you: #1f2937;
+      --msg-text-you: #f3f4f6;
+      --app-bg: #111827;
+      --header-bg: #1f2937;
+      --input-bg: #1f2937;
+      --input-box-bg: #374151;
+      --border-color: rgba(255,255,255,0.1);
+      --admin-color: #a78bfa;
+      color: #f3f4f6;
     }
     
     html, body {
-        height: 100%;
-        margin: 0;
-        background: linear-gradient(180deg, #fff 0%, #fff0f5 100%);
-        color: #111;
-        -webkit-tap-highlight-color: transparent;
-        overflow: hidden;
-        position: fixed;
-        width: 100%;
+        height: 100%; margin: 0; background: var(--app-bg); color: inherit;
+        -webkit-tap-highlight-color: transparent; overflow: hidden; position: fixed; width: 100%;
+        transition: background 0.3s;
     }
 
     /* --- Splash Screen --- */
     #splash-screen {
-        position: fixed; inset: 0; background: white; z-index: 9999;
+        position: fixed; inset: 0; background: var(--header-bg); z-index: 9999;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         transition: opacity 0.5s ease-out, visibility 0.5s;
     }
     #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     
-    .splash-content {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        flex: 1;
-    }
+    .splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; }
     .splash-title {
         font-size: 32px; font-weight: 800;
         background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         margin-bottom: 30px; letter-spacing: -0.5px;
     }
-    .spinner {
-        width: 50px; height: 50px; position: relative;
-    }
+    .spinner { width: 50px; height: 50px; position: relative; }
     .spinner::before, .spinner::after {
-        content: ''; position: absolute; inset: 0; border-radius: 50%;
-        border: 3px solid transparent;
+        content: ''; position: absolute; inset: 0; border-radius: 50%; border: 3px solid transparent;
     }
-    .spinner::before {
-        border-top-color: var(--primary-2);
-        animation: spin 1s linear infinite;
-    }
-    .spinner::after {
-        border-bottom-color: var(--primary-1);
-        animation: spin 1.5s linear infinite reverse;
-        inset: 6px;
-    }
-    .splash-footer { 
-        padding-bottom: 40px; width: 100%; text-align: center; 
-    }
+    .spinner::before { border-top-color: var(--primary-2); animation: spin 1s linear infinite; }
+    .spinner::after { border-bottom-color: var(--primary-1); animation: spin 1.5s linear infinite reverse; inset: 6px; }
+    .splash-footer { padding-bottom: 40px; width: 100%; text-align: center; }
     .org-name { 
-        font-size: 15px; font-weight: 600; color: #374151; 
-        padding: 8px 16px; background: rgba(255,255,255,0.8);
+        font-size: 15px; font-weight: 600; color: var(--muted); 
+        padding: 8px 16px; background: var(--input-box-bg);
         border-radius: 20px; display: inline-block;
         box-shadow: 0 2px 10px rgba(0,0,0,0.03);
     }
@@ -73,13 +80,15 @@
 
     /* --- Main Layout --- */
     .wrap {
-        max-width: 420px; margin: 0 auto; background: white; height: 100%;
+        max-width: 420px; margin: 0 auto; background: var(--bg); height: 100%;
         display: flex; flex-direction: column; position: relative;
+        /* Depth transition */
+        transition: filter 0.3s ease, transform 0.3s ease;
     }
     @media (min-width: 481px) {
         .wrap {
             margin: 18px auto; border-radius: 18px; height: calc(100vh - 36px) !important;
-            background: linear-gradient(180deg,rgba(255,255,255,0.95), rgba(255,240,245,0.95));
+            background: var(--header-bg);
             box-shadow: var(--card-shadow); border: 1px solid var(--glass-border);
         }
     }
@@ -87,122 +96,255 @@
     /* --- Header --- */
     header.app {
         display: flex; align-items: center; gap: 12px; padding: 14px 16px;
-        border-bottom: 1px solid rgba(0,0,0,0.05); background: white; z-index: 10; flex-shrink: 0; min-height: 50px;
+        border-bottom: 1px solid var(--border-color); background: var(--header-bg); z-index: 10; flex-shrink: 0; min-height: 50px;
+        transition: background 0.3s;
     }
     .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--primary-1),var(--primary-2));display:flex;align-items:center;justify-content:center;color:white;box-shadow:0 4px 12px rgba(255, 45, 85, 0.25)}
     .title{flex:1}
-    .title h1{margin:0;font-size:16px; font-weight: 700; color: #1f2937;}
+    .title h1{margin:0;font-size:16px; font-weight: 700; color: inherit;}
     .title p{margin:2px 0 0;font-size:12px;color:var(--muted)}
     
     .active-badge {
         font-size: 10px; background: #dcfce7; color: #166534; padding: 2px 6px; 
         border-radius: 10px; margin-left: 6px; font-weight: 600; vertical-align: middle;
         border: 1px solid #bbf7d0; display: inline-flex; align-items: center; gap: 3px;
-        cursor: pointer;
+        cursor: pointer; transition: transform 0.2s;
     }
+    .active-badge:active { transform: scale(0.95); }
+    [data-theme="dark"] .active-badge { background: #064e3b; color: #6ee7b7; border-color: #065f46; }
     .active-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
 
-    .user-info-area {
-        text-align: right; font-size: 11px; color: var(--muted); line-height: 1.3;
-        cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: background 0.2s; border: 1px solid transparent;
+    /* Admin Badge */
+    .admin-badge-icon {
+        background: var(--admin-color); color: white; padding: 2px 6px; border-radius: 4px;
+        font-size: 10px; font-weight: 700; margin-left: 5px; vertical-align: middle;
     }
-    .user-info-area:active { background: #f3f4f6; }
+
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .icon-btn { 
+        background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 8px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+    }
+    .icon-btn:active { background: var(--input-box-bg); }
+    .icon-btn.admin-btn { color: var(--admin-color); }
+
+    /* --- Pinned Message --- */
+    #pinnedBanner {
+        background: linear-gradient(90deg, #fff0f5, #ffe4e6); padding: 8px 12px; 
+        display: none; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255, 92, 138, 0.1);
+        cursor: pointer; animation: slideDown 0.3s ease;
+    }
+    [data-theme="dark"] #pinnedBanner { background: linear-gradient(90deg, #374151, #1f2937); border-bottom: 1px solid #4b5563; }
+    .pin-icon { color: var(--primary-2); flex-shrink: 0; }
+    .pin-content { flex: 1; font-size: 13px; font-weight: 500; color: var(--primary-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
+    /* --- Search Bar --- */
+    #searchBar {
+        display: none; padding: 8px 16px; background: var(--header-bg); border-bottom: 1px solid var(--border-color);
+        animation: fadeIn 0.2s;
+    }
+    #searchBar.active { display: flex; }
+    #searchInput {
+        width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);
+        background: var(--input-box-bg); color: inherit; outline: none; font-size: 14px;
+    }
 
     /* --- Chat Area --- */
-    main.chat { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #fffbfd; position: relative; }
+    main.chat { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); position: relative; transition: background 0.3s; }
 
     .messages {
         flex: 1; overflow-y: auto; padding: 10px 16px; display: flex; flex-direction: column;
-        gap: 2px;
+        gap: 6px; /* Increased gap slightly for cards */
         scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+        /* Zoom optimization */
+        transform-origin: top center;
     }
 
-    .date-divider { 
-        display: flex; justify-content: center; margin: 24px 0 12px; position: relative; 
-    }
+    .date-divider { display: flex; justify-content: center; margin: 24px 0 12px; position: relative; }
     .date-divider span {
-        background: rgba(0,0,0,0.05); color: #555; font-size: 11px; padding: 4px 12px; 
+        background: var(--input-box-bg); color: var(--muted); font-size: 11px; padding: 4px 12px; 
         border-radius: 12px; font-weight: 600;
     }
 
     .empty-state {
         display: none; flex-direction: column; align-items: center; justify-content: center;
-        height: 100%; color: #d1d5db; text-align: center; margin-top: -40px;
+        height: 100%; color: var(--muted); text-align: center; margin-top: -40px;
     }
     .empty-state svg { width: 64px; height: 64px; margin-bottom: 12px; opacity: 0.5; }
-    .empty-state p { font-size: 14px; color: #9ca3af; }
+    .empty-state p { font-size: 14px; color: var(--muted); }
 
-    /* Message Bubbles */
+    /* ================================================================
+       ✨ UPDATED: Glassy Smart Message Card Styles
+       ================================================================
+    */
     .msg {
-        display:block; max-width:80%; padding:8px 14px; border-radius:18px; 
+        display:block; max-width:80%; padding:10px 14px; border-radius:18px; 
         position:relative; word-wrap:break-word; font-size: 15px; 
         line-height: 1.6; word-spacing: 2px;
-        box-shadow: 0 1px 1px rgba(0,0,0,0.03); 
-        user-select: text;
-        transition: transform 0.1s; cursor: pointer;
-        margin-bottom: 2px;
-    }
-    .msg:active { transform: scale(0.98); }
-    .msg .sender-name { font-weight: 700; font-size: 11px; color: var(--primary-2); margin-bottom: 4px; display: block;}
-    
-    .msg img.chat-img {
-        max-width: 100%;
-        border-radius: 8px;
-        margin-top: 4px;
-        display: block;
-        min-height: 100px; background: #f0f0f0;
-        cursor: zoom-in; /* Indicate zoom capability */
+        user-select: text; transition: transform 0.1s, background-color 0.2s; cursor: pointer; margin-bottom: 2px;
+        
+        /* Glassmorphism Base properties */
+        backdrop-filter: blur(10px) saturate(160%);
+        -webkit-backdrop-filter: blur(10px) saturate(160%);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.35);
+        border: 1px solid rgba(255,255,255,0.1);
+        
+        /* Entry Animation */
+        animation: msg-enter 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
 
+    .msg:active { transform: scale(0.98); }
+    .msg.highlight-anim { background-color: rgba(255, 230, 0, 0.2); transition: background-color 0.1s; }
+    
+    /* ⚡ NEW: Long Press Highlight State */
+    .msg.long-press-active {
+        z-index: 110;
+        transform: scale(1.02);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+        border-color: var(--primary-1);
+    }
+    
+    .msg .sender-name { font-weight: 700; font-size: 11px; color: var(--primary-2); margin-bottom: 4px; display: block; pointer-events: auto;}
+    /* Admin/Moderator styling in name */
+    .sender-name.admin-sender { color: var(--admin-color) !important; }
+    
+    .msg img.chat-img {
+        max-width: 100%; border-radius: 8px; margin-top: 4px; display: block;
+        min-height: 100px; background: var(--input-box-bg); cursor: zoom-in;
+    }
+
+    /* Links in messages */
+    .msg a { color: var(--primary-2); text-decoration: underline; font-weight: 500; }
+    .msg.me a { color: white; }
+
+    /* .msg.me Glass Override (Keeps Gradient, Adds Gloss) */
     .msg.me {
         align-self: flex-end; 
         background: linear-gradient(135deg, var(--primary-1), var(--primary-2)); 
         color: white; 
+        /* Enhance shadow for me messages */
+        box-shadow: 0 8px 20px rgba(255, 45, 85, 0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+        border: none;
     }
     .msg.me.first-of-group { border-bottom-right-radius: 4px; margin-top: 6px; }
     .msg.me.middle-of-group { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
     .msg.me.last-of-group { border-top-right-radius: 4px; border-bottom-right-radius: 18px; margin-bottom: 8px; }
     .msg.me:not(.first-of-group):not(.middle-of-group):not(.last-of-group) { margin-top: 6px; margin-bottom: 8px; }
 
+    /* .msg.you Glass Override (Translucent White) */
     .msg.you {
-        align-self: flex-start; background: white; color: #1f2937; border: 1px solid #fce7f3;
+        align-self: flex-start; 
+        background: rgba(255, 255, 255, 0.7); 
+        color: var(--msg-text-you); 
+        /* Border is handled by base .msg class */
     }
+    /* Dark Mode You Message */
+    [data-theme="dark"] .msg.you {
+        background: rgba(31, 41, 55, 0.7);
+        border-color: rgba(255,255,255,0.05);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
     .msg.you.first-of-group { border-bottom-left-radius: 4px; margin-top: 6px; }
     .msg.you.middle-of-group { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
     .msg.you.last-of-group { border-top-left-radius: 4px; border-bottom-left-radius: 18px; margin-bottom: 8px; }
     .msg.you:not(.first-of-group):not(.middle-of-group):not(.last-of-group) { margin-top: 6px; margin-bottom: 8px; }
 
-    .msg.me .meta { color: rgba(255,255,255,0.75); }
+    .msg.me .meta { color: rgba(255,255,255,0.85); }
     .msg.you .meta { color: var(--muted); }
-    .meta { font-size: 9px; display:flex; gap:6px; align-items:center; justify-content: flex-end; margin-top: 2px; opacity: 0.8; }
-    
-    .seen-list {
-        font-size: 9px;
-        color: rgba(255,255,255,0.9);
-        margin-top: 2px;
-        border-top: 1px solid rgba(255,255,255,0.2);
-        padding-top: 2px;
-        display: block;
-        text-align: right;
-    }
-    .seen-icon { font-size: 10px; margin-right: 2px; }
+    .meta { font-size: 9px; display:flex; gap:6px; align-items:center; justify-content: flex-end; margin-top: 4px; opacity: 1; }
+    .edited-label { font-size: 9px; font-style: italic; opacity: 0.8; margin-right: 4px; }
 
+    /* ✨ NEW: Local Love Reaction UI */
+    .local-love-btn {
+        background: none; border: none; padding: 2px; margin-left: 4px; cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center;
+        color: inherit; opacity: 0.6; transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .local-love-btn:hover { opacity: 1; transform: scale(1.1); }
+    .local-love-btn svg { width: 14px; height: 14px; stroke-width: 2px; }
+    
+    .local-love-btn.active { 
+        color: #ff2d55; opacity: 1; 
+        animation: popHeart 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .msg.me .local-love-btn.active { color: white; }
+    .local-love-btn.active svg { fill: currentColor; stroke: none; }
+
+    @keyframes popHeart {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.4); }
+        100% { transform: scale(1); }
+    }
+
+    /* Reply Style inside Bubble */
+    .reply-block {
+        border-left: 3px solid var(--primary-2); background: rgba(0,0,0,0.05);
+        padding: 4px 8px; border-radius: 4px; margin-bottom: 6px; font-size: 12px;
+        display: flex; flex-direction: column; cursor: pointer;
+    }
+    .msg.me .reply-block { background: rgba(0,0,0,0.1); border-left-color: white; }
+    .reply-sender { font-weight: 700; opacity: 0.9; font-size: 10px; }
+    .reply-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.8; }
+
+    /* Reactions */
+    .reactions-row {
+        display: flex; gap: 4px; margin-top: -8px; margin-bottom: 4px; z-index: 2; position: relative;
+    }
+    .msg.me + .reactions-row { align-self: flex-end; justify-content: flex-end; padding-right: 10px; }
+    .msg.you + .reactions-row { align-self: flex-start; padding-left: 10px; }
+    .reaction-pill {
+        background: var(--input-box-bg); border: 1px solid var(--border-color); padding: 2px 6px;
+        border-radius: 10px; font-size: 11px; display: flex; align-items: center; gap: 2px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: var(--muted);
+    }
+    [data-theme="dark"] .reaction-pill { background: #374151; color: #e5e7eb; }
+
+    /* System Message */
+    .msg.system {
+        align-self: center; background: rgba(0,0,0,0.05); border: none; 
+        color: var(--muted); font-size: 12px; padding: 4px 12px; border-radius: 12px;
+        max-width: 90%; text-align: center; margin: 8px 0;
+    }
+    [data-theme="dark"] .msg.system { background: rgba(255,255,255,0.1); }
+
+    /* Poll Styles */
+    .poll-card {
+        background: var(--input-box-bg); padding: 10px; border-radius: 12px; margin-top: 5px;
+        display: flex; flex-direction: column; gap: 6px; min-width: 200px;
+    }
+    .poll-opt {
+        background: var(--bg); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color);
+        cursor: pointer; position: relative; overflow: hidden;
+    }
+    .poll-bar {
+        position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255, 92, 138, 0.2);
+        z-index: 0; transition: width 0.3s;
+    }
+    .poll-text { position: relative; z-index: 1; display: flex; justify-content: space-between; font-size: 13px; }
+
+    /* Typing & Scroll */
     .typing-indicator {
-        align-self: flex-start; background: white; padding: 12px 16px; border-radius: 18px;
-        border-bottom-left-radius: 4px; border: 1px solid #fce7f3; display: none;
+        align-self: flex-start; background: var(--msg-bg-you); padding: 12px 16px; border-radius: 18px;
+        border-bottom-left-radius: 4px; border: 1px solid var(--input-box-bg); display: none;
         align-items: center; gap: 4px; margin-bottom: 8px; margin-left: 16px; margin-top: 5px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05); animation: slideIn 0.2s ease-out;
-        width: fit-content;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05); animation: slideIn 0.2s ease-out; width: fit-content;
     }
     .typing-indicator.active { display: flex; }
-    .dot { width: 6px; height: 6px; background: #ff5c8a; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+    .dot { width: 6px; height: 6px; background: var(--primary-1); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
     .dot:nth-child(1) { animation-delay: -0.32s; }
     .dot:nth-child(2) { animation-delay: -0.16s; }
     @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
     @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes msg-enter {
+        from { opacity: 0; transform: translateY(6px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
 
     .scroll-bottom-btn {
-        position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%);
+        position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
         background: var(--primary-2); color: white; padding: 8px 16px; border-radius: 20px;
         font-size: 12px; font-weight: 600; cursor: pointer;
         box-shadow: 0 4px 15px rgba(255, 45, 85, 0.4); transition: all 0.3s; 
@@ -212,97 +354,146 @@
 
     /* --- INPUT AREA --- */
     footer.input {
-        display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid rgba(0,0,0,0.05);
-        align-items: flex-end; background: white; flex-shrink: 0;
-        box-shadow: 0 -1px 3px rgba(0,0,0,0.02);
+        display: flex; flex-direction: column; background: var(--header-bg); border-top: 1px solid var(--border-color);
+        box-shadow: 0 -1px 3px rgba(0,0,0,0.02); z-index: 20;
     }
+    /* Glassmorphism Overrides */
+    header.app, footer.input, .card, .action-sheet {
+        background: rgba(255, 255, 255, 0.65) !important;
+        backdrop-filter: blur(12px) saturate(160%);
+        -webkit-backdrop-filter: blur(12px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+    }
+    header.app { box-shadow: inset 0 -1px 0 rgba(255,255,255,0.35); }
+    footer.input { box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); }
+    [data-theme="dark"] header.app, 
+    [data-theme="dark"] footer.input,
+    [data-theme="dark"] .card, 
+    [data-theme="dark"] .action-sheet {
+        background: rgba(17, 24, 39, 0.70) !important;
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .reply-preview {
+        display: none; background: var(--input-box-bg); padding: 8px 12px; font-size: 12px;
+        border-bottom: 1px solid var(--border-color); color: var(--muted);
+        justify-content: space-between; align-items: center; animation: slideUp 0.2s;
+    }
+    .reply-preview.active { display: flex; }
+    
+    .input-main { display: flex; gap: 8px; padding: 10px 12px; align-items: flex-end; }
+    
     .input-container {
-        flex: 1; background: #fff0f7; border-radius: 24px; border: 1px solid #fbcfe8;
-        padding: 8px 12px 8px 16px; display: flex; align-items: center; transition: all 0.2s;
-        gap: 8px;
+        flex: 1; background: var(--input-box-bg); border-radius: 24px; border: 1px solid var(--input-box-bg);
+        padding: 8px 12px 8px 16px; display: flex; align-items: center; transition: all 0.2s; gap: 8px;
     }
     .input-container:focus-within { 
-        background: white; border-color: var(--primary-1); 
+        background: var(--header-bg); border-color: var(--primary-1); 
         box-shadow: 0 0 0 3px rgba(255, 92, 138, 0.15); 
     }
     .input textarea {
         flex: 1; border: none; background: transparent; padding: 4px 0;
-        resize: none; font-size: 15px; outline: none; 
+        resize: none; font-size: 15px; outline: none; color: inherit;
         max-height: 120px; min-height: 24px; overflow-y: hidden; line-height: 1.4;
     }
     .action-btn {
         border: none; background: transparent; font-size: 20px; 
         cursor: pointer; padding: 4px; opacity: 0.6; transition: opacity 0.2s;
-        display: flex; align-items: center; color: #ff5c8a;
+        display: flex; align-items: center; color: var(--primary-1);
     }
     .action-btn:hover { opacity: 1; }
     
     .send-btn {
         background: linear-gradient(90deg,var(--primary-1),var(--primary-2)); border:none; color:white;
         width: 44px; height: 44px; border-radius: 50%; display:flex; align-items:center; justify-content:center;
-        cursor:pointer; flex-shrink: 0; box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3); 
-        transition: all 0.2s;
+        cursor:pointer; flex-shrink: 0; box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3); transition: all 0.2s;
     }
     .send-btn:disabled {
         background: #e5e7eb; color: #9ca3af; box-shadow: none; cursor: default; transform: scale(0.95);
     }
+    .send-btn:not(:disabled):hover {
+        box-shadow: 0 0 15px rgba(255, 45, 85, 0.6);
+        transform: scale(1.05);
+    }
+    [data-theme="dark"] .send-btn:disabled { background: #374151; color: #6b7280; }
     
-    /* Loading Overlay for Image */
+    /* Loading Overlay */
     .loading-overlay {
         position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 2000;
-        display: none; flex-direction: column; align-items: center; justify-content: center;
-        backdrop-filter: blur(2px);
+        display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(2px);
     }
+    [data-theme="dark"] .loading-overlay { background: rgba(0,0,0,0.8); }
     .loading-overlay.active { display: flex; }
     .loading-text { margin-top: 15px; font-weight: 600; color: var(--primary-2); }
 
 
     /* Modals & Overlays */
     .modal-overlay, .action-sheet-overlay {
-        position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(2px);
+        position:fixed; inset:0; background:rgba(0,0,0,0.3); backdrop-filter:blur(5px);
         display:none; align-items:center; justify-content:center; z-index: 1000;
     }
     .modal-overlay.active, .action-sheet-overlay.active { display: flex; }
-    .card { width:100%; max-width:320px; background:white; border-radius:24px; padding:24px; animation: popIn 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .card { width:100%; max-width:320px; background: var(--header-bg); border-radius:24px; padding:24px; animation: popIn 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.15); color: inherit; }
     @keyframes popIn { from {transform: scale(0.95); opacity: 0;} to {transform: scale(1); opacity: 1;} }
     
     .action-sheet-overlay { align-items: flex-end; }
-    .action-sheet { width: 100%; max-width: 420px; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px 16px 30px; animation: slideUp 0.2s; display: flex; flex-direction: column; gap: 8px; }
+    .action-sheet { width: 100%; max-width: 420px; background: var(--header-bg); border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px 16px 30px; animation: slideUp 0.2s; display: flex; flex-direction: column; gap: 8px; color: inherit; }
     @keyframes slideUp { from {transform: translateY(100%);} to {transform: translateY(0);} }
-    .sheet-btn { width: 100%; padding: 14px; border: none; background: #fff0f5; border-radius: 12px; font-size: 16px; font-weight: 600; color: #831843; cursor: pointer; }
+    .sheet-btn { width: 100%; padding: 14px; border: none; background: var(--input-box-bg); border-radius: 12px; font-size: 16px; font-weight: 600; color: var(--primary-2); cursor: pointer; }
     .sheet-btn.danger { color: #ef4444; background: #fee2e2; }
-
-    /* List inside modal */
-    .user-list {
-        max-height: 200px;
-        overflow-y: auto;
-        border: 1px solid #eee;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        padding: 5px;
-    }
-    .user-list-item {
-        padding: 8px 10px;
-        font-size: 14px;
-        border-bottom: 1px solid #f0f0f0;
+    
+    /* ⚡ NEW: Inline Reaction Popover (Updated: Fixed Position & High Z-Index) */
+    .reaction-popover {
+        position: fixed; /* Changed to fixed to stay above everything */
+        z-index: 10005; /* Max Z-Index */
+        background: rgba(255, 255, 255, 0.95); /* Slightly less transparent */
+        backdrop-filter: blur(12px) saturate(180%);
+        border: 1px solid rgba(255,255,255,0.4);
+        border-radius: 50px;
+        padding: 6px 10px;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        gap: 8px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.25); /* Enhanced Shadow */
+        animation: scaleIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        pointer-events: auto;
     }
-    .user-list-item:last-child { border-bottom: none; }
-    .online-indicator {
-        width: 8px; height: 8px; background: #22c55e; border-radius: 50%;
+    [data-theme="dark"] .reaction-popover {
+        background: rgba(30, 41, 59, 0.95);
+        border-color: rgba(255,255,255,0.1);
     }
+    @keyframes scaleIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    .pop-emoji {
+        font-size: 24px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s;
+        padding: 2px;
+        user-select: none;
+    }
+    .pop-emoji:active { transform: scale(1.3); }
+
+    /* ⚡ NEW: Toast Message */
+    .toast-msg {
+        position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px);
+        background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 30px;
+        font-size: 14px; opacity: 0; pointer-events: none; z-index: 2000;
+        transition: all 0.3s;
+    }
+    .toast-msg.active { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* Common UI Elements */
-    .modal-title { margin:0 0 10px 0; font-size: 20px; font-weight: 700; color: #111; }
-    .modal-body { font-size: 14px; color: #4b5563; margin-bottom: 20px; }
+    .modal-title { margin:0 0 10px 0; font-size: 20px; font-weight: 700; color: inherit; }
+    .modal-body { font-size: 14px; color: var(--muted); margin-bottom: 20px; max-height: 200px; overflow-y: auto; }
     .row { display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
-    .row input { padding:14px; border-radius:12px; border:1px solid #e5e7eb; font-size:15px; outline:none; width: 100%; box-sizing: border-box; }
+    .row input { padding:14px; border-radius:12px; border:1px solid var(--border-color); font-size:15px; outline:none; width: 100%; box-sizing: border-box; background: var(--input-box-bg); color: inherit; }
     .row input:focus { border-color: var(--primary-1); }
     .modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
     .btn-primary { background: var(--primary-2); color:white; padding:12px 24px; border-radius:12px; border:0; font-weight:600; cursor:pointer; font-size: 15px; width: 100%; }
-    .btn-secondary { background:transparent; color: var(--muted); border: 1px solid #e5e7eb; padding: 12px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px; }
+    .btn-secondary { background:transparent; color: var(--muted); border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px; }
     .error-msg { color: #ef4444; font-size: 13px; margin-top: 4px; display: none; }
 
     /* --- IMAGE VIEWER STYLES --- */
@@ -312,15 +503,9 @@
         opacity: 0; transition: opacity 0.3s;
     }
     .viewer-overlay.active { display: flex; opacity: 1; }
-    .viewer-container {
-        width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center;
-        cursor: grab;
-    }
+    .viewer-container { width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: grab; }
     .viewer-container:active { cursor: grabbing; }
-    .viewer-img {
-        max-width: 100%; max-height: 100%; transition: transform 0.1s ease-out;
-        transform-origin: center center; user-select: none; pointer-events: auto;
-    }
+    .viewer-img { max-width: 100%; max-height: 100%; transition: transform 0.1s ease-out; transform-origin: center center; user-select: none; pointer-events: auto; }
     .viewer-header {
         position: absolute; top: 0; left: 0; right: 0; padding: 15px;
         display: flex; justify-content: space-between; z-index: 10001;
@@ -338,6 +523,40 @@
         background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 30px;
         backdrop-filter: blur(4px);
     }
+    
+    /* Highlight for Search */
+    .highlight { background-color: yellow; color: black; border-radius: 2px; }
+
+    /* Active Badge Breathing */
+    @keyframes breathing-glow {
+        0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+        50% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+    .active-badge { animation: breathing-glow 2s infinite; }
+
+    /* Shimmer Effect */
+    .msg img.chat-img {
+        background: #f3f4f6;
+        min-height: 120px; 
+        position: relative;
+    }
+    [data-theme="dark"] .msg img.chat-img { background: #374151; }
+    .msg img.chat-img:not([src]), .msg img.chat-img[src=""] {
+        background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+    }
+    [data-theme="dark"] .msg img.chat-img:not([src]) {
+        background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+    }
+    @keyframes shimmer { 100% { background-position: -200% 0; } }
+    .depth-blur {
+        filter: blur(4px) grayscale(0.2);
+        transform: scale(0.98); 
+        pointer-events: none;
+    }
+    button:active, .poll-opt:active { transform: scale(0.97) !important; transition: transform 0.1s; }
   </style>
 </head>
 <body>
@@ -356,8 +575,11 @@
   <!-- Loading Overlay -->
   <div class="loading-overlay" id="imgLoader">
       <div class="spinner"></div>
-      <div class="loading-text">ইমেজ কনভার্ট হচ্ছে...</div>
+      <div class="loading-text">প্রসেসিং হচ্ছে...</div>
   </div>
+
+  <!-- Toast Message -->
+  <div class="toast-msg" id="toastMsg">টেক্সট কপি করা হয়েছে</div>
 
   <!-- IMAGE VIEWER -->
   <div id="imageViewer" class="viewer-overlay">
@@ -385,14 +607,36 @@
         </svg>
       </div>
       <div class="title">
-        <h1>মিটিং রুম <span id="activeCount" style="display:none;" class="active-badge"><div class="active-dot"></div><span id="activeNum">0</span></span></h1>
+        <h1>মিটিং রুম <span id="activeCount" style="display:none;" title="Active Users List" class="active-badge"><div class="active-dot"></div><span id="activeNum">0</span></span></h1>
         <p>আপনার মতামত জানান</p>
       </div>
-      <div class="user-info-area" id="headerProfile">
-        <div id="userNameSmall" style="font-weight: 600; color: var(--primary-2);"></div>
-        <div id="userPhoneSmall"></div>
+      <div class="header-actions">
+        <!-- New Admin Panel Button -->
+        <button class="icon-btn admin-btn" id="adminPanelBtn" title="এডমিন প্যানেল" style="display:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+        </button>
+        <button class="icon-btn" id="searchToggleBtn" title="খুঁজুন">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        </button>
+        <button class="icon-btn" id="themeToggleBtn" title="ডার্ক মোড">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
+        <div class="user-info-area" id="headerProfile" style="cursor: pointer; padding: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="var(--primary-2)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+        </div>
       </div>
     </header>
+
+    <!-- Search Bar -->
+    <div id="searchBar">
+        <input type="text" id="searchInput" placeholder="মেসেজ খুঁজুন..." autocomplete="off">
+    </div>
+
+    <!-- Pinned Message Banner -->
+    <div id="pinnedBanner">
+        <div class="pin-icon">📌</div>
+        <div class="pin-content" id="pinnedText"></div>
+    </div>
 
     <main class="chat">
       <!-- Empty State -->
@@ -417,27 +661,38 @@
 
       <!-- Input Area -->
       <footer class="input">
-        <div class="input-container">
+        <div class="reply-preview" id="replyPreview">
+            <div>
+                <span style="font-weight:700" id="replyToName">Name</span> কে রিপ্লাই দিচ্ছেন
+            </div>
+            <button id="cancelReply" style="border:none;background:transparent;color:var(--muted);font-size:18px;">&times;</button>
+        </div>
+        <div class="input-main">
             <!-- Hidden File Input -->
             <input type="file" id="imgInput" accept="image/*" hidden />
             
+            <button class="action-btn" id="pollBtn" title="পোল তৈরি করুন">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+            </button>
             <button class="action-btn" id="imgBtn" title="ছবি পাঠান">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
             </button>
-            <textarea id="messageInput" rows="1" placeholder="মেসেজ লিখুন..."></textarea>
-            <button class="action-btn" id="emojiBtn" title="ইমোজি">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <div class="input-container">
+                <textarea id="messageInput" rows="1" placeholder="মেসেজ লিখুন..."></textarea>
+                <button class="action-btn" id="emojiBtn" title="ইমোজি">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+            </div>
+            <button class="send-btn" id="sendBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
             </button>
         </div>
-        <button class="send-btn" id="sendBtn" disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-        </button>
       </footer>
     </main>
   </div>
@@ -450,6 +705,9 @@
       <div class="row">
         <input id="nameInput" placeholder="আপনার নাম" autocomplete="off"/>
         <input id="phoneInput" placeholder="ফোন নম্বর" type="tel" autocomplete="off"/>
+        <!-- New Admin Password Field -->
+        <input id="adminPassInput" placeholder="এডমিন পাসওয়ার্ড (ঐচ্ছিক)" type="password" autocomplete="off" style="margin-top:10px; border-color:var(--admin-color); opacity:0.8;"/>
+        
         <div id="entryError" class="error-msg">দয়া করে নাম এবং ফোন নম্বর দিন</div>
       </div>
       <div class="modal-footer" style="justify-content: center;">
@@ -458,15 +716,19 @@
     </div>
   </div>
 
-  <!-- Active Users Modal -->
-  <div class="modal-overlay" id="activeUsersModal">
+  <!-- Poll Creation Modal -->
+  <div class="modal-overlay" id="pollModal">
     <div class="card">
-      <h2 class="modal-title">অনলাইনে আছেন</h2>
-      <div class="user-list" id="activeUserList">
-         <!-- Users will be injected here -->
+      <h2 class="modal-title">ভোট / পোল তৈরি</h2>
+      <div class="row">
+        <input id="pollQuestion" placeholder="প্রশ্ন লিখুন (যেমন: আগামী মিটিং কবে?)" />
+        <input class="poll-opt-input" placeholder="অপশন ১" />
+        <input class="poll-opt-input" placeholder="অপশন ২" />
+        <input class="poll-opt-input" placeholder="অপশন ৩ (ঐচ্ছিক)" />
       </div>
       <div class="modal-footer">
-        <button class="btn-primary" id="closeActiveModal">বন্ধ করুন</button>
+        <button class="btn-secondary" id="pollCancel">বাতিল</button>
+        <button class="btn-primary" id="pollCreateBtn">পোস্ট করুন</button>
       </div>
     </div>
   </div>
@@ -474,14 +736,45 @@
   <!-- Options Sheet -->
   <div class="action-sheet-overlay" id="optionsSheet">
     <div class="action-sheet">
-        <div style="text-align:center; font-size:13px; color:#9ca3af; margin-bottom:4px;">অপশনস</div>
+        <button class="sheet-btn" id="optReply">রিপ্লাই (Reply)</button>
+        <button class="sheet-btn" id="optCopy">কপি করুন (Copy)</button>
+        <button class="sheet-btn" id="optPin" style="display:none;">পিন করুন (Pin)</button>
         <button class="sheet-btn" id="optEdit">এডিট (Edit)</button>
         <button class="sheet-btn danger" id="optDelete">ডিলেট (Delete)</button>
         <button class="sheet-btn" id="optCancel">বন্ধ করুন</button>
     </div>
   </div>
 
-  <!-- Generic Modal -->
+  <!-- User Options Sheet (Admin Only) -->
+  <div class="action-sheet-overlay" id="userOptionsSheet">
+      <div class="action-sheet">
+          <h3 style="margin:0;font-size:16px;color:var(--primary-2)" id="uOptName">User Name</h3>
+          <button class="sheet-btn" id="uOptMute">মিউট করুন (Mute)</button>
+          <button class="sheet-btn danger" id="uOptKick">রিমুভ করুন (Kick)</button>
+          <button class="sheet-btn danger" id="uOptBlock">ব্লক করুন (Block)</button>
+          <button class="sheet-btn" id="uOptCancel">বন্ধ করুন</button>
+      </div>
+  </div>
+
+  <!-- Admin Panel Modal -->
+  <div class="modal-overlay" id="adminPanelModal">
+      <div class="card">
+          <h2 class="modal-title" style="color:var(--admin-color)">এডমিন প্যানেল</h2>
+          <div class="modal-body" style="display:flex; flex-direction:column; gap:10px;">
+              <button class="btn-secondary" id="admSysMsg">📢 সিস্টেম মেসেজ পাঠান</button>
+              <button class="btn-secondary" id="admClearPin">📌 পিন রিমুভ / রিসেট করুন</button>
+              <button class="btn-secondary" id="admResetPolls">📊 সব পোল রিসেট</button>
+              <button class="btn-secondary" id="admSummary">📝 আজকের সামারি তৈরি করুন</button>
+              <!-- ✨ NEW: Password Change Button -->
+              <button class="btn-secondary" id="admChangePass" style="border-color:var(--admin-color); color:var(--admin-color)">🔑 পাসওয়ার্ড পরিবর্তন করুন</button>
+          </div>
+          <div class="modal-footer">
+              <button class="btn-primary" id="admClose">বন্ধ করুন</button>
+          </div>
+      </div>
+  </div>
+
+  <!-- Generic Modal (Seen list, Alerts) -->
   <div class="modal-overlay" id="dialogModal">
     <div class="card">
       <h2 class="modal-title" id="dTitle"></h2>
@@ -512,22 +805,39 @@
     const db = getDatabase(app);
     const messagesRef = ref(db, 'messages');
     const typingRef = ref(db, 'typing');
-    // NOTE: Changed to 'presence' for better tracking
-    const presenceRef = ref(db, 'presence');
+    const activeUsersRef = ref(db, 'activeUsers'); 
     const connectedRef = ref(db, '.info/connected');
+    const pinnedRef = ref(db, 'pinnedMessage');
+    const summaryRef = ref(db, 'dailySummary');
+    const adminSettingsRef = ref(db, 'adminSettings');
 
     const $ = sel => document.querySelector(sel);
+    const $$ = sel => document.querySelectorAll(sel);
     const LS_USER = 'meeting_room_user_v1';
     
+    // --- STATE ---
     let user = JSON.parse(localStorage.getItem(LS_USER) || 'null');
     let currentMsgId = null;
-    let currentMsgText = null;
+    let currentMsgData = null;
     let longPressTimer;
-    let isLongPressTriggered = false; 
+    let isLongPressTriggered = false;
     let isUserNearBottom = true;
     let typingTimeout;
     let isSending = false; 
+    let replyTo = null; 
+    let allMessagesCache = [];
+    let isAdmin = false;
+    let notificationSound = new Audio("https://cdn.freesound.org/previews/235/235911_2391840-lq.mp3");
+    
+    // For Inline Reaction Cleanup
+    let currentReactionPopup = null;
+    let currentActiveMsgEl = null;
 
+    // Cache for active users
+    let activeUsersCache = {};
+    let selectedUserForAction = null;
+
+    // --- DOM ---
     const messagesEl = $('#messages');
     const appContainer = $('.wrap');
     const typingInd = $('#typingIndicator');
@@ -537,37 +847,101 @@
     const entryModal = $('#entryModal');
     const sendBtn = $('#sendBtn');
     const imgLoader = $('#imgLoader');
+    const replyPreview = $('#replyPreview');
+    const replyToName = $('#replyToName');
+    const pinnedBanner = $('#pinnedBanner');
+    const pinnedText = $('#pinnedText');
+    const searchBar = $('#searchBar');
+    const searchInput = $('#searchInput');
+    const toastMsg = $('#toastMsg');
     
-    // Active User Modals
-    const activeBadge = $('#activeCount');
-    const activeUsersModal = $('#activeUsersModal');
-    const activeUserList = $('#activeUserList');
-    const closeActiveModal = $('#closeActiveModal');
-    
-    // Splash Screen & Auto Cleanup
+    // Admin DOM
+    const adminPanelBtn = $('#adminPanelBtn');
+
+    // --- INIT ---
     window.addEventListener('load', () => {
         setTimeout(() => $('#splash-screen').classList.add('hidden'), 2000);
+        checkDraft();
         cleanupOldMessages();
+        loadTheme();
+        initAdminSettings();
+        if(user) {
+            checkAdmin(user.uid);
+            updateUserLastSeen();
+        }
     });
 
+    // Ensure Admin Password exists in DB
+    function initAdminSettings() {
+        get(adminSettingsRef).then(snap => {
+            if(!snap.exists()) {
+                set(adminSettingsRef, { password: "1234", linkFilter: true });
+            }
+        });
+    }
+
+    // --- DARK MODE ---
+    function loadTheme(){
+        const theme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', theme);
+    }
+    $('#themeToggleBtn').addEventListener('click', ()=>{
+        const current = document.body.getAttribute('data-theme');
+        const newTheme = current === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+
+    // --- DRAFT SAVE ---
+    function checkDraft(){
+        const draft = localStorage.getItem('msgDraft');
+        if(draft) { input.value = draft; updateInputState(); }
+    }
+    input.addEventListener('input', () => {
+        localStorage.setItem('msgDraft', input.value);
+        updateInputState();
+    });
+
+    // --- AUTO DELETE LOGIC ---
     function cleanupOldMessages() {
-        const THIRTY_FIVE_DAYS_MS = 35 * 24 * 60 * 60 * 1000;
-        const cutoff = Date.now() - THIRTY_FIVE_DAYS_MS;
-        
+        const CUTOFF = 35 * 24 * 60 * 60 * 1000;
         get(messagesRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 Object.keys(data).forEach(key => {
-                    const msg = data[key];
-                    if (msg.time && msg.time < cutoff) {
-                        remove(ref(db, `messages/${key}`)).catch(err => console.error("Error auto-deleting:", err));
+                    if (data[key].time && data[key].time < (Date.now() - CUTOFF)) {
+                        remove(ref(db, `messages/${key}`));
                     }
                 });
             }
         });
     }
 
-    // --- Enhanced Viewport Logic ---
+    // --- ADMIN CHECK & ROLES ---
+    function checkAdmin(uid) {
+        onValue(ref(db, `users/${uid}/role`), snap => {
+            const role = snap.val();
+            isAdmin = (role === 'admin');
+            if(isAdmin) {
+                adminPanelBtn.style.display = 'flex';
+            } else {
+                adminPanelBtn.style.display = 'none';
+            }
+        });
+        
+        // Check Blocked State
+        onValue(ref(db, `users/${uid}/blocked`), snap => {
+            if(snap.val() === true) {
+                document.body.innerHTML = `<div style="display:flex;height:100%;align-items:center;justify-content:center;flex-direction:column;background:var(--bg);color:var(--muted)"><h2>🚫 অ্যাক্সেস নেই</h2><p>আপনাকে এই রুম থেকে ব্লক করা হয়েছে।</p></div>`;
+            }
+        });
+    }
+
+    function updateUserLastSeen() {
+        if(user) update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
+    }
+
+    // --- VIEWPORT & SCROLL ---
     function adjustHeight() {
         if (!window.visualViewport) return;
         if (window.innerWidth < 600) {
@@ -578,419 +952,631 @@
         }
         if(isUserNearBottom) scrollToBottom(true);
     }
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', adjustHeight);
-        window.visualViewport.addEventListener('scroll', adjustHeight);
-    }
+    window.visualViewport?.addEventListener('resize', adjustHeight);
+    window.visualViewport?.addEventListener('scroll', adjustHeight);
     window.addEventListener('resize', adjustHeight);
     adjustHeight();
 
-    // Scroll Logic
-    function checkScroll() {
-        const threshold = 150;
-        const distToBottom = messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight;
-        isUserNearBottom = distToBottom < threshold;
-        if (distToBottom > 200) scrollBtn.classList.remove('hidden');
-        else scrollBtn.classList.add('hidden');
-    }
-    messagesEl.addEventListener('scroll', checkScroll);
+    messagesEl.addEventListener('scroll', () => {
+        const dist = messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight;
+        isUserNearBottom = dist < 150;
+        scrollBtn.classList.toggle('hidden', dist <= 200);
+    });
     scrollBtn.addEventListener('click', () => scrollToBottom(true));
-
-    function scrollToBottom(force = false) {
-        if(force || isUserNearBottom) {
-            setTimeout(() => messagesEl.scrollTop = messagesEl.scrollHeight, 50);
-        }
+    function scrollToBottom(force=false){ 
+        if(force || isUserNearBottom) setTimeout(()=>messagesEl.scrollTop = messagesEl.scrollHeight, 50); 
     }
 
-    // --- Active User Logic (FIXED) ---
-    // 1. Manage my presence
+    // --- ACTIVE USER LOGIC ---
     onValue(connectedRef, (snap) => {
         if (snap.val() === true && user) {
-            // Use specific UID ref instead of push to prevent duplicates
-            const myPresence = ref(db, `presence/${user.uid}`);
-            
-            // Remove when disconnected
-            onDisconnect(myPresence).remove();
-            
-            // Set my details
-            set(myPresence, {
-                name: user.name,
-                phone: user.phone,
-                online: true,
-                time: Date.now()
-            });
+            const myStatusRef = ref(db, `activeUsers/${user.uid}`);
+            set(myStatusRef, { name: user.name, lastActive: Date.now() });
+            onDisconnect(myStatusRef).remove();
         }
     });
 
-    // 2. Listen to all presence
-    let activeUsersData = {};
-    onValue(presenceRef, (snap) => {
-        activeUsersData = snap.val() || {};
-        const count = Object.keys(activeUsersData).length;
+    onValue(activeUsersRef, (snap) => {
+        const data = snap.val() || {};
+        activeUsersCache = data;
+        const count = Object.keys(data).length;
+        const badge = $('#activeCount');
         
         if(count > 0) {
-            activeBadge.style.display = 'inline-flex';
+            badge.style.display = 'inline-flex';
             $('#activeNum').textContent = count + ' Active';
+        } else { badge.style.display = 'none'; }
+    });
+    
+    $('#activeCount').addEventListener('click', () => {
+        if(!isAdmin) return; // Only Admin sees full list details
+        const users = Object.values(activeUsersCache);
+        if(users.length === 0) return;
+        
+        const listHtml = users.map(u => `
+            <div style="padding: 10px 0; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:600; font-size:15px;">${escapeHtml(u.name || 'Unknown')}</span>
+                <span style="font-size:11px; color:var(--muted); background:var(--input-box-bg); padding:2px 8px; border-radius:10px;">অনলাইন</span>
+            </div>
+        `).join('');
+        
+        dialog.show(`Active Members (${users.length})`, '', false);
+        $('#dBody').innerHTML = `<div style="max-height:300px; overflow-y:auto">${listHtml}</div>`;
+        $('#dOk').style.display = 'none'; 
+        $('#dCancel').textContent = 'বন্ধ করুন';
+    });
+
+    onValue(pinnedRef, (snap) => {
+        const data = snap.val();
+        if(data && data.text) {
+            pinnedBanner.style.display = 'flex';
+            pinnedText.textContent = data.text;
+            pinnedBanner.onclick = () => {
+                const onUnpin = isAdmin ? () => {
+                    remove(pinnedRef);
+                } : null;
+
+                dialog.show('পিন করা মেসেজ', data.text + '\n\n— ' + data.sender, false, onUnpin);
+                
+                if(isAdmin) {
+                    $('#dOk').textContent = 'আনপিন করুন';
+                    $('#dOk').style.backgroundColor = '#ef4444';
+                    $('#dOk').style.display = 'block';
+                    $('#dCancel').textContent = 'বন্ধ করুন';
+                } else {
+                    $('#dOk').style.display = 'none';
+                    $('#dCancel').textContent = 'বন্ধ করুন';
+                }
+            }
         } else {
-            activeBadge.style.display = 'none';
+            pinnedBanner.style.display = 'none';
         }
     });
 
-    // 3. UI Interactions for Active List
-    activeBadge.addEventListener('click', () => {
-        activeUserList.innerHTML = '';
-        if(Object.keys(activeUsersData).length === 0) {
-            activeUserList.innerHTML = '<div style="padding:10px;text-align:center;color:#999;">কেউ অনলাইনে নেই</div>';
-        } else {
-            Object.values(activeUsersData).forEach(u => {
-                const div = document.createElement('div');
-                div.className = 'user-list-item';
-                div.innerHTML = `
-                    <div>
-                        <div style="font-weight:600;">${escapeHtml(u.name)}</div>
-                        <div style="font-size:11px;color:#888;">${escapeHtml(u.phone)}</div>
-                    </div>
-                    <div class="online-indicator"></div>
-                `;
-                activeUserList.appendChild(div);
-            });
-        }
-        activeUsersModal.classList.add('active');
-    });
-
-    closeActiveModal.addEventListener('click', () => {
-        activeUsersModal.classList.remove('active');
-    });
-
-
-    // --- MESSAGES RENDER LOGIC ---
+    // --- MESSAGES RENDER ---
     onValue(messagesRef, (snapshot) => {
         const data = snapshot.val();
-        let loadedMessages = []; 
+        allMessagesCache = [];
         if (data) {
-            loadedMessages = Object.keys(data)
+            allMessagesCache = Object.keys(data)
                 .map(key => ({ id: key, ...data[key] }))
                 .sort((a, b) => a.time - b.time);
         }
-        renderMessages(loadedMessages);
+        applyFilterAndRender();
     });
 
-    onValue(typingRef, (snapshot) => {
-        const data = snapshot.val();
-        let isTyping = false;
-        if (data && user) {
-            const myId = user.uid || user.phoneSafe; 
-            Object.keys(data).forEach(key => {
-                if (key !== myId && (Date.now() - data[key].time < 3000)) isTyping = true;
-            });
-        }
-        if (isTyping) {
-            typingInd.classList.add('active');
-            messagesEl.parentNode.appendChild(typingInd); 
-            scrollToBottom();
-        } else {
-            typingInd.classList.remove('active');
-        }
-    });
+    let lastMsgCount = 0;
 
-    function isImageContent(txt) {
-        if(!txt) return false;
-        if(txt.startsWith('data:image/')) return true;
-        return(txt.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) != null);
+    $('#searchToggleBtn').addEventListener('click', () => {
+        searchBar.classList.toggle('active');
+        if(searchBar.classList.contains('active')) searchInput.focus();
+        else { searchInput.value = ''; applyFilterAndRender(); }
+    });
+    searchInput.addEventListener('input', applyFilterAndRender);
+
+    function applyFilterAndRender() {
+        const query = searchInput.value.toLowerCase().trim();
+        const msgs = query ? allMessagesCache.filter(m => 
+            (m.text && m.text.toLowerCase().includes(query)) || 
+            (m.senderName && m.senderName.toLowerCase().includes(query))
+        ) : allMessagesCache;
+        
+        if(msgs.length > lastMsgCount && lastMsgCount !== 0) {
+             const lastMsg = msgs[msgs.length - 1];
+             if(user && lastMsg.uid !== user.uid) {
+                 notificationSound.play().catch(e => console.log('Audio autoplay blocked'));
+             }
+        }
+        lastMsgCount = msgs.length;
+
+        renderMessages(msgs, query);
     }
 
-    function renderMessages(msgs){
-        const uniqueMsgs = [];
-        const seenIds = new Set();
-        
-        msgs.forEach(m => {
-            if(!seenIds.has(m.id)){
-                seenIds.add(m.id);
-                uniqueMsgs.push(m);
-            }
-        });
-
-        if(uniqueMsgs.length === 0) {
-            messagesEl.innerHTML = '';
-            emptyState.style.display = 'flex';
-            messagesEl.appendChild(emptyState);
-            return;
-        }
-        emptyState.style.display = 'none';
-
+    function renderMessages(msgs, highlightQuery = '') {
         const fragment = document.createDocumentFragment();
         let lastDate = null;
 
-        uniqueMsgs.forEach((m, i) => {
-            const isMe = user && (m.uid === user.uid || m.senderPhone === user.phone);
-            const prevM = uniqueMsgs[i-1];
-            const nextM = uniqueMsgs[i+1];
+        if(msgs.length === 0) {
+            messagesEl.innerHTML = ''; messagesEl.appendChild(emptyState); 
+            emptyState.style.display = 'flex'; return;
+        }
+        emptyState.style.display = 'none';
 
-            // Mark as seen logic (with Name)
-            if (user && !isMe && (!m.seenBy || !m.seenBy[user.uid]) && (uniqueMsgs.length - i <= 10)) {
+        msgs.forEach((m, i) => {
+            if(m.type === 'system') {
+                const div = document.createElement('div');
+                div.className = 'msg system';
+                div.textContent = m.text;
+                fragment.appendChild(div);
+                return;
+            }
+
+            const isMe = user && (m.uid === user.uid);
+            
+            // Mark Seen
+            if (user && !isMe && (!m.seenBy || !m.seenBy[user.uid]) && (msgs.length - i <= 10)) {
                markAsSeen(m.id);
             }
 
-            // Date Divider
             const msgDateObj = new Date(m.time);
             const dateStr = msgDateObj.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
-            
             if (dateStr !== lastDate) {
                 const dateDiv = document.createElement('div');
                 dateDiv.className = 'date-divider';
-                const today = new Date().toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
-                const yesterdayObj = new Date(); yesterdayObj.setDate(yesterdayObj.getDate() - 1);
-                const yesterday = yesterdayObj.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
-                let label = dateStr;
-                if(dateStr === today) label = "আজ";
-                else if(dateStr === yesterday) label = "গতকাল";
-                dateDiv.innerHTML = `<span>${label}</span>`;
+                dateDiv.innerHTML = `<span>${dateStr}</span>`;
                 fragment.appendChild(dateDiv);
                 lastDate = dateStr;
             }
 
-            // Grouping
-            const isFirst = !prevM || prevM.senderPhone !== m.senderPhone || (new Date(prevM.time).toDateString() !== msgDateObj.toDateString());
-            const isLast = !nextM || nextM.senderPhone !== m.senderPhone || (new Date(nextM.time).toDateString() !== msgDateObj.toDateString());
-            
-            let groupClass = '';
-            if (isFirst && isLast) groupClass = ''; 
-            else if (isFirst && !isLast) groupClass = 'first-of-group';
-            else if (!isFirst && !isLast) groupClass = 'middle-of-group';
-            else if (!isFirst && isLast) groupClass = 'last-of-group';
-
-            // Create Element
-            const div = document.createElement('div'); 
-            div.className = `msg ${isMe ? 'me' : 'you'} ${groupClass}`;
+            const div = document.createElement('div');
             div.id = `msg-${m.id}`;
             
-            if(m.deleted) {
-                div.style.background = 'transparent'; div.style.border = '1px dashed #e5e7eb'; div.style.color = '#9ca3af'; 
-                div.innerHTML = '<em style="font-size:13px;">মেসেজটি মুছে ফেলা হয়েছে</em>';
-            } else {
-                const showName = !isMe && isFirst;
-                const isImg = isImageContent(m.text);
+            if (m.type === 'poll') {
+                div.className = `msg ${isMe ? 'me' : 'you'}`;
+                div.style.width = '75%';
+                div.innerHTML = renderPollContent(m, isMe);
+                attachPollEvents(div, m);
+            } 
+            else {
+                div.className = `msg ${isMe ? 'me' : 'you'}`;
                 
-                let contentHTML;
-                if(isImg) {
-                    contentHTML = `<img src="${m.text}" data-src="${m.text}" class="chat-img" loading="lazy" alt="Image" />`;
+                if(m.deleted) {
+                    div.style.background='transparent'; div.style.border='1px dashed var(--muted)'; div.style.color='var(--muted)';
+                    div.innerHTML = '<em style="font-size:13px;">মেসেজটি মুছে ফেলা হয়েছে</em>';
                 } else {
-                    contentHTML = `<div style="white-space:pre-wrap; word-break: break-word;">${escapeHtml(m.text)}</div>`;
-                }
+                    const showName = !isMe;
+                    const isImg = isImageContent(m.text);
+                    let contentHTML = '';
 
-                // Seen By Logic
-                let seenHTML = '';
-                if(isMe && m.seenBy) {
-                    const seenNames = Object.values(m.seenBy)
-                        .map(s => s.name ? s.name.split(' ')[0] : null) // Get first name
-                        .filter(n => n)
-                        .join(', ');
-                    
-                    if(seenNames) {
-                        seenHTML = `<div class="seen-list"><span class="seen-icon">👁️</span>${seenNames}</div>`;
+                    if(m.replyTo) {
+                        contentHTML += `
+                        <div class="reply-block" onclick="scrollToMsg('${m.replyTo.id}')">
+                            <span class="reply-sender">${escapeHtml(m.replyTo.name)}</span>
+                            <span class="reply-text">${escapeHtml(m.replyTo.text)}</span>
+                        </div>`;
                     }
-                }
 
-                div.innerHTML = `
-                    ${showName ? `<div class="sender-name">${escapeHtml(m.senderName)}</div>` : ''}
-                    ${contentHTML}
-                    <div class="meta">
-                        ${isMe ? `<span>✓</span>` : ''} 
-                        <div class="time">${formatTime(m.time)}</div>
-                    </div>
-                    ${seenHTML}
-                `;
-                attachLongPress(div, m.id, m.text, isMe);
+                    if(isImg) {
+                        contentHTML += `<img src="${m.text}" data-src="${m.text}" class="chat-img" loading="lazy" alt="Image" />`;
+                    } else {
+                        let txt = escapeHtml(m.text);
+                        // Auto-Link Logic
+                        const urlRegex = /(https?:\/\/[^\s]+)/g;
+                        txt = txt.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+
+                        if(highlightQuery) {
+                            const re = new RegExp(`(${highlightQuery})`, 'gi');
+                            txt = txt.replace(re, '<span class="highlight">$1</span>');
+                        }
+                        contentHTML += `<div style="white-space:pre-wrap; word-break: break-word;">${txt}</div>`;
+                    }
+
+                    // Seen Text
+                    let seenText = '';
+                    if(m.seenBy) {
+                        const count = Object.keys(m.seenBy).length;
+                        if(count > 0 && isAdmin) seenText = ` • 👁️ ${count}`; // Only admin sees count properly
+                    }
+
+                    const editedHtml = (m.edited) ? `<span class="edited-label">(এডিট করা)</span>` : '';
+                    const heartIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
+
+                    // Admin Badge on Name
+                    const isAdminSender = false; // Logic handled in render time usually, but simplified here
+                    // We can check user role if we had a cache of all users, but for now relying on style injection manually or future update.
+                    
+                    div.innerHTML = `
+                        ${showName ? `<div class="sender-name" onclick="showUserOptions('${m.uid}', '${escapeHtml(m.senderName)}')">${escapeHtml(m.senderName)}</div>` : ''}
+                        ${contentHTML}
+                        <div class="meta">
+                            ${editedHtml}
+                            <div class="time" onclick="showSeenList('${m.id}')" style="cursor:pointer">${formatTime(m.time)}${seenText}</div>
+                            <button class="local-love-btn" onclick="toggleLove(this)">${heartIcon}</button>
+                            ${isMe ? `<span>✓</span>` : ''} 
+                        </div>
+                    `;
+                    attachLongPress(div, m);
+                }
             }
             fragment.appendChild(div);
+
+            if(!m.deleted && m.reactions) {
+                const rRow = document.createElement('div');
+                rRow.className = 'reactions-row';
+                let hasReacts = false;
+                Object.entries(m.reactions).forEach(([emoji, uids]) => {
+                    const count = Object.keys(uids).length;
+                    if(count > 0) {
+                        hasReacts = true;
+                        const pill = document.createElement('div');
+                        pill.className = 'reaction-pill';
+                        pill.textContent = `${emoji} ${count}`;
+                        rRow.appendChild(pill);
+                    }
+                });
+                if(hasReacts) fragment.appendChild(rRow);
+            }
         });
 
         messagesEl.innerHTML = '';
         messagesEl.appendChild(fragment);
-
-        if (isUserNearBottom) scrollToBottom(true);
+        if (isUserNearBottom && !highlightQuery) scrollToBottom(true);
     }
 
-    // Updated Mark As Seen (Store Name)
-    function markAsSeen(msgId) {
-        if(!user) return;
-        const seenRef = ref(db, `messages/${msgId}/seenBy/${user.uid}`);
-        set(seenRef, {
-            name: user.name,
-            time: Date.now()
-        }).catch(()=>{});
-    }
-
-    // --- INPUT & SENDING ---
-    function updateInputState() {
-        const text = input.value.trim();
-        input.style.height = 'auto';
-        input.style.height = (input.scrollHeight) + 'px';
-        sendBtn.disabled = text.length === 0;
-
-        if(!user) return;
-        clearTimeout(typingTimeout);
-        const myId = user.uid || user.phoneSafe; 
-        const userTypingRef = ref(db, `typing/${myId}`);
-        set(userTypingRef, { name: user.name, time: Date.now() });
-        typingTimeout = setTimeout(() => remove(userTypingRef), 2000);
-    }
-    input.addEventListener('input', updateInputState);
-
-    // Image Handling
-    const imgInput = $('#imgInput');
-    $('#imgBtn').addEventListener('click', () => imgInput.click());
-    
-    imgInput.addEventListener('change', async (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            imgLoader.classList.add('active'); 
-            
-            try {
-                const base64Img = await compressImage(file);
-                const confirmSend = confirm("ছবিটি পাঠাতে চান?");
-                if(confirmSend) {
-                    sendMessage(base64Img, true);
-                }
-            } catch (err) {
-                console.error(err);
-                alert("ছবি প্রসেস করতে সমস্যা হয়েছে।");
-            } finally {
-                imgLoader.classList.remove('active');
-                imgInput.value = '';
+    function renderPollContent(m, isMe) {
+        const totalVotes = m.votes ? Object.keys(m.votes).length : 0;
+        let optsHtml = '';
+        
+        m.options.forEach((opt, idx) => {
+            let count = 0;
+            if(m.votes) {
+                Object.values(m.votes).forEach(v => { if(v === idx) count++; });
             }
-        }
-    });
+            const pct = totalVotes === 0 ? 0 : Math.round((count/totalVotes)*100);
+            
+            optsHtml += `
+            <div class="poll-opt" data-idx="${idx}">
+                <div class="poll-bar" style="width:${pct}%"></div>
+                <div class="poll-text">
+                    <span>${escapeHtml(opt)}</span>
+                    <span>${pct}% (${count})</span>
+                </div>
+            </div>`;
+        });
 
-    function compressImage(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    const MAX_WIDTH = 800;
-                    
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7)); 
-                };
-                img.onerror = (err) => reject(err);
-            };
-            reader.onerror = (err) => reject(err);
+        return `
+            ${!isMe ? `<div class="sender-name" onclick="showUserOptions('${m.uid}', '${escapeHtml(m.senderName)}')">${escapeHtml(m.senderName)}</div>` : ''}
+            <div class="poll-card">
+                <div style="font-weight:600;font-size:15px;margin-bottom:4px;">📊 ${escapeHtml(m.question)}</div>
+                ${optsHtml}
+                <div class="meta" style="margin-top:8px;">মোট ভোট: ${totalVotes} • ${formatTime(m.time)}</div>
+            </div>
+        `;
+    }
+    
+    function attachPollEvents(el, m) {
+        const opts = el.querySelectorAll('.poll-opt');
+        opts.forEach(opt => {
+            opt.addEventListener('click', () => {
+                const idx = parseInt(opt.getAttribute('data-idx'));
+                if(m.votes && m.votes[user.uid] === idx) return; 
+                update(ref(db, `messages/${m.id}/votes/${user.uid}`), idx);
+            });
         });
     }
 
-    sendBtn.addEventListener('click', (e) => { e.preventDefault(); sendMessage(); });
+    function markAsSeen(msgId) {
+        set(ref(db, `messages/${msgId}/seenBy/${user.uid}`), { name: user.name, time: Date.now() });
+    }
+    
+    window.showSeenList = (msgId) => {
+        if(!isAdmin) return; // Only admin can see seen list
+        const m = allMessagesCache.find(x => x.id === msgId);
+        if(!m || !m.seenBy) return;
+        
+        const names = Object.values(m.seenBy).map(x => `<div>• ${x.name} <small style="color:#999">(${formatTime(x.time)})</small></div>`).join('');
+        dialog.show('Seen By', '', false);
+        $('#dBody').innerHTML = names || 'No info';
+        $('#dOk').style.display = 'none'; $('#dCancel').textContent = 'বন্ধ করুন';
+    }
+    
+    window.scrollToMsg = (id) => {
+        const el = document.getElementById(`msg-${id}`);
+        if(el) {
+            el.scrollIntoView({behavior: 'smooth', block: 'center'});
+            el.classList.add('highlight-anim');
+            setTimeout(() => el.classList.remove('highlight-anim'), 2000);
+        }
+    };
+
+    window.toggleLove = (btn) => {
+        if(window.event) window.event.stopPropagation();
+        btn.classList.toggle('active');
+    };
+
+    // --- USER OPTIONS (Admin Only) ---
+    window.showUserOptions = (targetUid, targetName) => {
+        if(!isAdmin || targetUid === user.uid) return;
+        
+        selectedUserForAction = { uid: targetUid, name: targetName };
+        $('#uOptName').textContent = targetName;
+        $('#userOptionsSheet').classList.add('active');
+    };
+    
+    $('#uOptCancel').onclick = () => $('#userOptionsSheet').classList.remove('active');
+    
+    $('#uOptMute').onclick = () => {
+        update(ref(db, `users/${selectedUserForAction.uid}`), { muted: true });
+        dialog.show('সফল', `${selectedUserForAction.name} কে মিউট করা হয়েছে।`, false);
+        $('#userOptionsSheet').classList.remove('active');
+    };
+    
+    $('#uOptKick').onclick = () => {
+         // Simply removes active session node for visual feedback, real removal needs DB rule or complex logic
+         remove(ref(db, `activeUsers/${selectedUserForAction.uid}`));
+         dialog.show('সফল', `${selectedUserForAction.name} কে কিক করা হয়েছে।`, false);
+         $('#userOptionsSheet').classList.remove('active');
+    };
+
+    $('#uOptBlock').onclick = () => {
+         update(ref(db, `users/${selectedUserForAction.uid}`), { blocked: true });
+         dialog.show('সফল', `${selectedUserForAction.name} কে ব্লক করা হয়েছে।`, false);
+         $('#userOptionsSheet').classList.remove('active');
+    };
+
+    // --- TYPING ---
+    onValue(typingRef, (snapshot) => {
+        const data = snapshot.val();
+        let isTyping = false;
+        if (data && user) {
+            Object.keys(data).forEach(key => {
+                if (key !== user.uid && (Date.now() - data[key].time < 3000)) isTyping = true;
+            });
+        }
+        if (isTyping) {
+            typingInd.classList.add('active'); messagesEl.parentNode.appendChild(typingInd); scrollToBottom();
+        } else { typingInd.classList.remove('active'); }
+    });
+
+    // --- SEND LOGIC ---
+    function updateInputState() {
+        const text = input.value.trim();
+        input.style.height = 'auto'; input.style.height = (input.scrollHeight) + 'px';
+        sendBtn.disabled = text.length === 0;
+        
+        if(!user) return;
+        clearTimeout(typingTimeout);
+        set(ref(db, `typing/${user.uid}`), { name: user.name, time: Date.now() });
+        typingTimeout = setTimeout(() => remove(ref(db, `typing/${user.uid}`)), 2000);
+    }
+    
+    sendBtn.addEventListener('click', (e) => { e.preventDefault(); checkMuteAndSend(); });
     input.addEventListener('keydown', (e)=>{ 
-        if (e.isComposing || e.keyCode === 229) return;
-        if(e.key==='Enter' && !e.shiftKey){ 
-            e.preventDefault(); 
-            if(!sendBtn.disabled) sendMessage(); 
-        } 
+        if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); if(!sendBtn.disabled) checkMuteAndSend(); } 
     });
 
-    $('#emojiBtn').addEventListener('click', () => {
-        input.value += '😊'; updateInputState(); input.focus();
+    async function checkMuteAndSend(content=null, isImage=false, type='text', extra={}) {
+        if(!user) { showEntry(false); return; }
+        
+        // 1. Check Mute Status
+        const muteSnap = await get(ref(db, `users/${user.uid}/muted`));
+        if(muteSnap.val() === true) {
+            dialog.show('দুঃখিত', 'আপনাকে মিউট করা হয়েছে। আপনি মেসেজ পাঠাতে পারবেন না।', false);
+            return;
+        }
+
+        // 2. Spam Check (Rate Limiting)
+        // Simple client side check - last 5 msgs from me in last 10 seconds?
+        const myRecentMsgs = allMessagesCache.filter(m => m.uid === user.uid && m.time > Date.now() - 10000);
+        if(myRecentMsgs.length > 5 && !isAdmin) {
+             dialog.show('স্প্যাম সতর্কতা', 'দয়া করে এত দ্রুত মেসেজ পাঠাবেন না।', false);
+             return;
+        }
+
+        sendMessage(content, isImage, type, extra);
+    }
+
+    // Image
+    const imgInput = $('#imgInput');
+    $('#imgBtn').addEventListener('click', () => imgInput.click());
+    imgInput.addEventListener('change', async (e) => {
+        if (e.target.files && e.target.files[0]) {
+            imgLoader.classList.add('active');
+            try {
+                const base64 = await compressImage(e.target.files[0]);
+                if(confirm("ছবিটি পাঠাতে চান?")) checkMuteAndSend(base64, true);
+            } catch (err) { alert("Error processing image"); } 
+            finally { imgLoader.classList.remove('active'); imgInput.value = ''; }
+        }
     });
 
-    function sendMessage(content = null, isImage = false){ 
-      if(!user){ showEntry(false); return; }
+    function sendMessage(content = null, isImage = false, type = 'text', extraData = {}){ 
       if(isSending) return; 
-
+      
       const text = isImage ? content : input.value.trim(); 
-      if(!text) return; 
+      if(!text && type === 'text') return;
       
-      isSending = true; 
-      sendBtn.disabled = true;
+      isSending = true; sendBtn.disabled = true;
 
-      push(messagesRef, { 
-          senderName: user.name, 
-          senderPhone: user.phone, 
-          uid: user.uid, 
-          text: text, 
-          time: Date.now(), 
-          status: 'sent', 
-          deleted: false 
-      }).then(() => {
-          isSending = false; 
-      }).catch(() => {
-          isSending = false;
-      });
+      const payload = {
+          senderName: user.name, senderPhone: user.phone, uid: user.uid,
+          text: text, time: Date.now(), status: 'sent', deleted: false,
+          type: type, ...extraData
+      };
       
-      if(!isImage) {
-          input.value=''; 
-          input.style.height = 'auto'; 
-          input.focus();
+      if(replyTo && type === 'text') {
+          payload.replyTo = replyTo;
       }
+
+      push(messagesRef, payload).then(() => {
+          isSending = false; 
+          localStorage.removeItem('msgDraft');
+      }).catch(() => { isSending = false; });
       
-      clearTimeout(typingTimeout);
-      const myId = user.uid || user.phoneSafe;
-      remove(ref(db, `typing/${myId}`));
+      if(!isImage && type === 'text') {
+          input.value=''; input.style.height = 'auto'; input.focus();
+          cancelReply();
+      }
+      remove(ref(db, `typing/${user.uid}`));
       scrollToBottom(true);
     }
 
-    // --- User Management ---
-    function safePhone(p) { return p.replace(/[.#$/[\]]/g, '_'); }
-    function saveUser(u){ 
-        u.phoneSafe = safePhone(u.phone);
-        if(!u.uid) u.uid = u.phoneSafe; 
-        localStorage.setItem(LS_USER, JSON.stringify(u)); 
-        user = u; renderUserSmall(); 
-        update(ref(db, `users/${u.uid}`), { name: u.name, phone: u.phone, uid: u.uid, lastSeen: Date.now() });
-        // Trigger presence update immediately after save
-        if(user) {
-            const myPresence = ref(db, `presence/${user.uid}`);
-            onDisconnect(myPresence).remove();
-            set(myPresence, { name: user.name, phone: user.phone, online: true, time: Date.now() });
-        }
-    }
-    function renderUserSmall(){ 
-        if(user){ $('#userNameSmall').textContent=user.name; $('#userPhoneSmall').textContent=user.phone; } 
-    }
-    function showEntry(isEdit = false){ 
-        entryModal.classList.add('active');
-        $('#nameInput').value = isEdit && user ? user.name : '';
-        $('#phoneInput').value = isEdit && user ? user.phone : '';
-        $('#entryError').style.display = 'none';
-        $('#entryTitle').textContent = isEdit ? 'প্রোফাইল এডিট' : 'স্বাগতম!';
-        $('#enterBtn').textContent = isEdit ? 'সেভ করুন' : 'প্রবেশ করুন';
-    }
-    function hideEntry(){ entryModal.classList.remove('active'); }
-    $('#headerProfile').addEventListener('click', () => showEntry(true));
-    $('#enterBtn').addEventListener('click', ()=>{ 
-      const name = $('#nameInput').value.trim(); const phone = $('#phoneInput').value.trim(); 
-      if(!name || !phone){ $('#entryError').style.display = 'block'; return; } 
-      saveUser({ name, phone, uid: user ? user.uid : null }); hideEntry(); 
+    $('#pollBtn').addEventListener('click', () => $('#pollModal').classList.add('active'));
+    $('#pollCancel').addEventListener('click', () => $('#pollModal').classList.remove('active'));
+    $('#pollCreateBtn').addEventListener('click', () => {
+        const q = $('#pollQuestion').value.trim();
+        const opts = Array.from($$('.poll-opt-input')).map(i => i.value.trim()).filter(v => v);
+        
+        if(!q || opts.length < 2) { alert("প্রশ্ন এবং অন্তত ২টি অপশন দিন"); return; }
+        
+        checkMuteAndSend(null, false, 'poll', {
+            question: q,
+            options: opts,
+            votes: {} 
+        });
+        
+        $('#pollModal').classList.remove('active');
+        $('#pollQuestion').value = '';
+        $$('.poll-opt-input').forEach(i => i.value = '');
     });
 
-    // --- Actions ---
-    const optionsSheet = $('#optionsSheet');
-    function showOptions(id, text){ 
-        currentMsgId = id; currentMsgText = text; 
-        if(navigator.vibrate) navigator.vibrate(50); 
-        optionsSheet.classList.add('active'); 
+    // --- ACTIONS (Long Press & Menu) ---
+    function startReply(msg) {
+        replyTo = { id: msg.id, name: msg.senderName, text: msg.text };
+        replyToName.textContent = msg.senderName;
+        replyPreview.classList.add('active');
+        input.focus();
     }
-    function hideOptions(){ optionsSheet.classList.remove('active'); currentMsgId = null; }
-    $('#optCancel').addEventListener('click', hideOptions);
-    optionsSheet.addEventListener('click', (e)=>{ if(e.target === optionsSheet) hideOptions(); });
+    function cancelReply() {
+        replyTo = null; replyPreview.classList.remove('active');
+    }
+    $('#cancelReply').addEventListener('click', cancelReply);
+
+    function attachLongPress(el, m){
+        if(m.deleted) return;
+        const start = () => { 
+            isLongPressTriggered = false;
+            longPressTimer = setTimeout(() => {
+                isLongPressTriggered = true;
+                showContextualMenu(el, m);
+            }, 500); 
+        };
+        const end = () => { clearTimeout(longPressTimer); };
+        
+        el.addEventListener('touchstart', start, {passive: true});
+        el.addEventListener('touchend', end); 
+        el.addEventListener('touchmove', end);
+        el.addEventListener('mousedown', start);
+        el.addEventListener('mouseup', end);
+        el.addEventListener('mouseleave', end);
+        el.addEventListener('contextmenu', e => { e.preventDefault(); showContextualMenu(el, m); });
+    }
+
+    // ✅ FIX: Long Press Bug Resolved + Admin Powers
+    function showContextualMenu(el, m){
+        currentMsgId = m.id; currentMsgData = m;
+        currentActiveMsgEl = el;
+        
+        if(navigator.vibrate) navigator.vibrate(50);
+        
+        el.classList.add('long-press-active');
+        renderInlineReactions(el, m);
+
+        const isMe = user.uid === m.uid;
+        
+        // Admin or Owner Logic
+        $('#optDelete').style.display = (isMe || isAdmin) ? 'block' : 'none';
+        $('#optEdit').style.display = ((isMe || isAdmin) && !isImageContent(m.text) && m.type !== 'poll') ? 'block' : 'none';
+        $('#optPin').style.display = (isAdmin) ? 'block' : 'none';
+        
+        $('#optionsSheet').classList.add('active');
+    }
+
+    // ✅ FIX: Improved Reaction Handler
+    function renderInlineReactions(targetEl, m) {
+        if(currentReactionPopup) currentReactionPopup.remove();
+
+        const rect = targetEl.getBoundingClientRect();
+        const popup = document.createElement('div');
+        popup.className = 'reaction-popover';
+        
+        const emojis = ['❤️', '😂', '😮', '😢', '👍', '😡'];
+        emojis.forEach(e => {
+            const btn = document.createElement('button');
+            btn.className = 'pop-emoji';
+            btn.textContent = e;
+            // IMPORTANT: Stop propagation to prevent menu closing immediately
+            btn.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation(); 
+                reactToMessage(m.id, e);
+                hideOptions();
+            });
+            // Touch specific fix
+            btn.addEventListener('touchend', (ev) => {
+                 ev.preventDefault();
+                 ev.stopPropagation();
+                 reactToMessage(m.id, e);
+                 hideOptions();
+            });
+            popup.appendChild(btn);
+        });
+
+        document.body.appendChild(popup); // Append to body to avoid clipping
+        currentReactionPopup = popup;
+
+        const popHeight = 50; 
+        
+        // Fixed positioning logic - using rect directly since it's viewport relative
+        let top = rect.top - popHeight - 15; // 15px gap above message
+        let left = rect.left;
+        
+        // Boundary checks
+        if(top < 10) top = rect.bottom + 10; // If too close to top edge, show below
+        if(left + popup.offsetWidth > window.innerWidth) left = window.innerWidth - popup.offsetWidth - 10;
+        if(left < 10) left = 10;
+
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+    }
+
+    function hideOptions(){ 
+        $('#optionsSheet').classList.remove('active'); 
+        if(currentActiveMsgEl) {
+            currentActiveMsgEl.classList.remove('long-press-active');
+            currentActiveMsgEl = null;
+        }
+        if(currentReactionPopup) {
+            currentReactionPopup.remove();
+            currentReactionPopup = null;
+        }
+        currentMsgId = null; 
+    }
     
+    $('#optCancel').addEventListener('click', hideOptions);
+    $('.action-sheet-overlay').addEventListener('click', (e)=>{ 
+        if(e.target.classList.contains('action-sheet-overlay')) hideOptions(); 
+    });
+    
+    $('#optReply').addEventListener('click', () => {
+        if(currentMsgData) startReply(currentMsgData);
+        hideOptions();
+    });
+
+    $('#optCopy').addEventListener('click', async () => {
+        if(currentMsgData && currentMsgData.text) {
+            try {
+                await navigator.clipboard.writeText(currentMsgData.text);
+            } catch (err) {
+                const ta = document.createElement('textarea');
+                ta.value = currentMsgData.text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+            showToast();
+        }
+        hideOptions();
+    });
+
+    function showToast() {
+        toastMsg.classList.add('active');
+        setTimeout(() => toastMsg.classList.remove('active'), 2000);
+    }
+
     $('#optEdit').addEventListener('click', ()=>{
-        if(!currentMsgId) return; const id = currentMsgId; const txt = currentMsgText; hideOptions();
-        if(isImageContent(txt)) { dialog.confirm('ছবির লিংক/কোড এডিট করা যাবে না।', null); return; }
-        dialog.prompt('মেসেজটি পরিবর্তন করুন:', txt, (newText)=>{
-            if(!newText) return; update(ref(db, `messages/${id}`), { text: newText });
+        if(!currentMsgId) return; const m = currentMsgData; hideOptions();
+        
+        // Admin can edit old messages too, regular users limited to 5 mins
+        if (!isAdmin && Date.now() - m.time > 5 * 60 * 1000) {
+            dialog.show('দুঃখিত', 'মেসেজ ৫ মিনিটের বেশি পুরোনো হলে এডিট করা যায় না।', false);
+            return;
+        }
+
+        dialog.prompt('মেসেজটি পরিবর্তন করুন:', m.text, (newText)=>{
+            if(!newText) return; 
+            update(ref(db, `messages/${m.id}`), { text: newText, edited: true });
         });
     });
     
@@ -999,146 +1585,166 @@
         dialog.confirm('মুছে ফেলতে চান?', ()=>{ update(ref(db, `messages/${id}`), { deleted: true, text: '' }); });
     });
 
-    function attachLongPress(el, id, text, isMe){
-        if(!isMe) return;
-        const start = () => { 
-            isLongPressTriggered = false;
-            longPressTimer = setTimeout(() => {
-                isLongPressTriggered = true;
-                showOptions(id, text);
-            }, 600); 
-        };
-        const end = () => { clearTimeout(longPressTimer); };
-        el.addEventListener('mousedown', start); el.addEventListener('touchstart', start, {passive: true});
-        el.addEventListener('mouseup', end); el.addEventListener('mouseleave', end); el.addEventListener('touchend', end); el.addEventListener('touchmove', end);
-        el.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
+    $('#optPin').addEventListener('click', () => {
+        if(!currentMsgData) return;
+        set(pinnedRef, { text: currentMsgData.text, sender: currentMsgData.senderName, id: currentMsgData.id });
+        hideOptions();
+    });
+
+    function reactToMessage(msgId, emoji) {
+        const path = `messages/${msgId}/reactions/${emoji}/${user.uid}`;
+        get(ref(db, path)).then(snap => {
+            if(snap.exists()) remove(ref(db, path));
+            else set(ref(db, path), true);
+        });
     }
 
-    // --- IMAGE VIEWER LOGIC ---
-    const viewer = $('#imageViewer');
-    const vImage = $('#vImage');
-    const vContainer = $('#vContainer');
-    let scale = 1;
-    let pointX = 0;
-    let pointY = 0;
-    let pPanning = false;
-    let startX = 0;
-    let startY = 0;
+    // --- USER AUTH & ADMIN LOGIC ---
+    function safePhone(p) { return p.replace(/[.#$/[\]]/g, '_'); }
+    
+    async function saveUser(u, adminPass){ 
+        u.phoneSafe = safePhone(u.phone);
+        if(!u.uid) u.uid = u.phoneSafe; 
+        
+        // ✅ Password Check Logic
+        if(adminPass) {
+             const passSnap = await get(ref(db, 'adminSettings/password'));
+             if(passSnap.val() === adminPass) {
+                 u.role = 'admin';
+                 alert('স্বাগতম এডমিন!');
+             } else {
+                 alert('ভুল এডমিন পাসওয়ার্ড!');
+                 return; // Stop login if password attempted but wrong
+             }
+        }
 
-    messagesEl.addEventListener('click', (e) => {
-        if(e.target.classList.contains('chat-img')) {
-            if(isLongPressTriggered) {
-                isLongPressTriggered = false;
-                return;
+        localStorage.setItem(LS_USER, JSON.stringify(u)); 
+        user = u; 
+        
+        const updates = { name: u.name, phone: u.phone, uid: u.uid, lastSeen: Date.now() };
+        if(u.role) updates.role = u.role;
+        
+        update(ref(db, `users/${u.uid}`), updates);
+        checkAdmin(u.uid);
+    }
+
+    function showEntry(isEdit = false){ 
+        entryModal.classList.add('active');
+        $('#nameInput').value = isEdit && user ? user.name : '';
+        $('#phoneInput').value = isEdit && user ? user.phone : '';
+        $('#adminPassInput').value = ''; // Reset password field
+        $('#entryError').style.display = 'none';
+        $('#entryTitle').textContent = isEdit ? 'প্রোফাইল এডিট' : 'স্বাগতম!';
+        $('#enterBtn').textContent = isEdit ? 'সেভ করুন' : 'প্রবেশ করুন';
+    }
+    function hideEntry(){ entryModal.classList.remove('active'); }
+    $('#headerProfile').addEventListener('click', () => showEntry(true));
+    
+    $('#enterBtn').addEventListener('click', ()=>{ 
+      const name = $('#nameInput').value.trim(); 
+      const phone = $('#phoneInput').value.trim(); 
+      const pass = $('#adminPassInput').value.trim();
+      
+      if(!name || !phone){ $('#entryError').style.display = 'block'; return; } 
+      
+      const updatedUser = user ? { ...user, name, phone } : { name, phone };
+      saveUser(updatedUser, pass); 
+      hideEntry(); 
+    });
+
+    // --- ADMIN PANEL HANDLERS ---
+    adminPanelBtn.addEventListener('click', () => $('#adminPanelModal').classList.add('active'));
+    $('#admClose').addEventListener('click', () => $('#adminPanelModal').classList.remove('active'));
+
+    $('#admSysMsg').addEventListener('click', () => {
+        dialog.prompt('সিস্টেম মেসেজ লিখুন:', '', (txt) => {
+            if(txt) sendMessage(txt, false, 'system');
+        });
+    });
+    
+    // ✅ Updated: Admin Clear/Reset Pin Handler
+    $('#admClearPin').addEventListener('click', () => {
+        remove(pinnedRef);
+        dialog.show('সফল', 'পিন রিমুভ / রিসেট করা হয়েছে', false);
+        $('#adminPanelModal').classList.remove('active');
+    });
+
+    $('#admResetPolls').addEventListener('click', () => {
+        dialog.confirm('সতর্কতা: সব পোল ডিলিট হবে না, কিন্তু পুরনো হিসেবে গণ্য হবে।', () => {
+             // Complex logic skipped for simplicity, just alerting
+             alert('এই ফিচারটি পরবর্তী আপডেটে আসবে। ম্যানুয়ালি মেসেজ ডিলিট করুন।');
+        });
+    });
+    
+    $('#admSummary').addEventListener('click', () => {
+        const today = new Date().toDateString();
+        const todayMsgs = allMessagesCache.filter(m => new Date(m.time).toDateString() === today);
+        const count = todayMsgs.length;
+        const msg = `📅 ডেইলি সামারি (${today}):\nমোট মেসেজ: ${count}টি।\nধন্যবাদ সবাইকে!`;
+        sendMessage(msg, false, 'system');
+        $('#adminPanelModal').classList.remove('active');
+    });
+
+    // ✨ NEW: Password Change Handler
+    $('#admChangePass').addEventListener('click', () => {
+        dialog.prompt('নতুন এডমিন পাসওয়ার্ড দিন:', '', (newPass) => {
+            if(newPass && newPass.trim().length >= 4) {
+                update(ref(db, 'adminSettings'), { password: newPass.trim() })
+                    .then(() => {
+                        dialog.show('সফল', 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।', false);
+                        $('#adminPanelModal').classList.remove('active');
+                    })
+                    .catch((err) => dialog.show('ত্রুটি', 'পাসওয়ার্ড পরিবর্তন করা যায়নি।', false));
+            } else {
+                alert('পাসওয়ার্ড অন্তত ৪ অক্ষরের হতে হবে।');
             }
-            if(optionsSheet.classList.contains('active')) return;
-            const src = e.target.getAttribute('data-src') || e.target.src;
-            openViewer(src);
-        }
+        });
     });
 
-    function openViewer(src) {
-        vImage.src = src;
-        viewer.classList.add('active');
-        resetZoom();
+    // --- HELPERS ---
+    function isImageContent(txt) {
+        if(!txt) return false;
+        return (txt.startsWith('data:image/') || txt.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) != null);
     }
-
-    function closeViewer() {
-        viewer.classList.remove('active');
-        vImage.src = '';
+    function compressImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader(); reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image(); img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width; let height = img.height; const MAX = 800;
+                    if (width > MAX) { height *= MAX / width; width = MAX; }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7)); 
+                }; img.onerror = reject;
+            }; reader.onerror = reject;
+        });
     }
-
-    function updateTransform() {
-        vImage.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
-    }
-
-    function resetZoom() {
-        scale = 1; pointX = 0; pointY = 0;
-        updateTransform();
-    }
-
-    $('#vClose').addEventListener('click', closeViewer);
-    $('#vReset').addEventListener('click', resetZoom);
+    function formatTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
+    function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     
-    $('#vZoomIn').addEventListener('click', () => {
-        scale += 0.5; updateTransform();
-    });
-    
-    $('#vZoomOut').addEventListener('click', () => {
-        if(scale > 0.5) scale -= 0.5;
-        updateTransform();
-    });
-
-    $('#vDownload').addEventListener('click', () => {
-        const link = document.createElement('a');
-        link.href = vImage.src;
-        link.download = `meeting-room-image-${Date.now()}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
-
-    vContainer.addEventListener('mousedown', (e) => {
-        if(scale > 1) {
-            pPanning = true;
-            startX = e.clientX - pointX;
-            startY = e.clientY - pointY;
-            e.preventDefault();
+    // Viewer
+    messagesEl.addEventListener('click', (e) => {
+        if(e.target.classList.contains('chat-img') && !isLongPressTriggered) {
+             $('#vImage').src = e.target.getAttribute('data-src'); 
+             $('#imageViewer').classList.add('active');
+             appContainer.classList.add('depth-blur');
         }
     });
-    
-    window.addEventListener('mousemove', (e) => {
-        if(!pPanning) return;
-        pointX = e.clientX - startX;
-        pointY = e.clientY - startY;
-        updateTransform();
-    });
+    $('#vClose').onclick = () => { 
+        $('#imageViewer').classList.remove('active'); 
+        $('#vImage').src=''; 
+        appContainer.classList.remove('depth-blur');
+    };
 
-    window.addEventListener('mouseup', () => pPanning = false);
-
-    vContainer.addEventListener('touchstart', (e) => {
-        if(scale > 1 && e.touches.length === 1) {
-            pPanning = true;
-            startX = e.touches[0].clientX - pointX;
-            startY = e.touches[0].clientY - pointY;
-        }
-    }, {passive: false});
-
-    window.addEventListener('touchmove', (e) => {
-        if(!pPanning) return;
-        if(e.cancelable) e.preventDefault();
-        pointX = e.touches[0].clientX - startX;
-        pointY = e.touches[0].clientY - startY;
-        updateTransform();
-    }, {passive: false});
-
-    window.addEventListener('touchend', () => pPanning = false);
-
-    let lastTap = 0;
-    vContainer.addEventListener('click', (e) => {
-        const curTime = new Date().getTime();
-        const tapLen = curTime - lastTap;
-        if (tapLen < 300 && tapLen > 0) {
-            if(scale === 1) scale = 2; else scale = 1;
-            pointX = 0; pointY = 0;
-            updateTransform();
-            e.preventDefault();
-        }
-        lastTap = curTime;
-    });
-
-    vContainer.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        if(e.deltaY < 0) scale += 0.1;
-        else if(scale > 0.5) scale -= 0.1;
-        updateTransform();
-    }, {passive: false});
-
-
+    // Generic Dialog
     const dialog = {
       el: $('#dialogModal'), title: $('#dTitle'), body: $('#dBody'), input: $('#dInput'), inputCont: $('#dInputContainer'), okBtn: $('#dOk'), cancelBtn: $('#dCancel'),
-      reset(){ this.inputCont.style.display='none'; this.el.classList.remove('active'); },
+      reset(){ this.inputCont.style.display='none'; this.el.classList.remove('active'); this.okBtn.style.display='block'; this.cancelBtn.textContent='না'; },
       show(t, b, hasInput, onOk){
+        this.reset();
         this.title.textContent=t; this.body.textContent=b; this.inputCont.style.display=hasInput?'flex':'none'; this.el.classList.add('active');
         this.okBtn.onclick=()=>{ const v=hasInput?this.input.value:true; this.reset(); if(onOk) onOk(v); };
         this.cancelBtn.onclick=()=>{ this.reset(); };
@@ -1147,10 +1753,7 @@
       prompt(msg, def, onEnter){ this.input.value=def||''; this.show('এডিট', msg, true, onEnter); setTimeout(()=>this.input.focus(),100); }
     };
 
-    function formatTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
-    function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    if(!user) showEntry(false); else { hideEntry(); renderUserSmall(); }
+    if(!user) showEntry(false); else { hideEntry(); }
   </script>
 </body>
 </html>
-
