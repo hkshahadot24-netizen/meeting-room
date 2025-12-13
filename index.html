@@ -98,6 +98,7 @@
         font-size: 10px; background: #dcfce7; color: #166534; padding: 2px 6px; 
         border-radius: 10px; margin-left: 6px; font-weight: 600; vertical-align: middle;
         border: 1px solid #bbf7d0; display: inline-flex; align-items: center; gap: 3px;
+        cursor: pointer;
     }
     .active-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
 
@@ -174,6 +175,17 @@
     .msg.me .meta { color: rgba(255,255,255,0.75); }
     .msg.you .meta { color: var(--muted); }
     .meta { font-size: 9px; display:flex; gap:6px; align-items:center; justify-content: flex-end; margin-top: 2px; opacity: 0.8; }
+    
+    .seen-list {
+        font-size: 9px;
+        color: rgba(255,255,255,0.9);
+        margin-top: 2px;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        padding-top: 2px;
+        display: block;
+        text-align: right;
+    }
+    .seen-icon { font-size: 10px; margin-right: 2px; }
 
     .typing-indicator {
         align-self: flex-start; background: white; padding: 12px 16px; border-radius: 18px;
@@ -259,6 +271,28 @@
     @keyframes slideUp { from {transform: translateY(100%);} to {transform: translateY(0);} }
     .sheet-btn { width: 100%; padding: 14px; border: none; background: #fff0f5; border-radius: 12px; font-size: 16px; font-weight: 600; color: #831843; cursor: pointer; }
     .sheet-btn.danger { color: #ef4444; background: #fee2e2; }
+
+    /* List inside modal */
+    .user-list {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        padding: 5px;
+    }
+    .user-list-item {
+        padding: 8px 10px;
+        font-size: 14px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .user-list-item:last-child { border-bottom: none; }
+    .online-indicator {
+        width: 8px; height: 8px; background: #22c55e; border-radius: 50%;
+    }
 
     /* Common UI Elements */
     .modal-title { margin:0 0 10px 0; font-size: 20px; font-weight: 700; color: #111; }
@@ -424,6 +458,19 @@
     </div>
   </div>
 
+  <!-- Active Users Modal -->
+  <div class="modal-overlay" id="activeUsersModal">
+    <div class="card">
+      <h2 class="modal-title">অনলাইনে আছেন</h2>
+      <div class="user-list" id="activeUserList">
+         <!-- Users will be injected here -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" id="closeActiveModal">বন্ধ করুন</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Options Sheet -->
   <div class="action-sheet-overlay" id="optionsSheet">
     <div class="action-sheet">
@@ -465,7 +512,8 @@
     const db = getDatabase(app);
     const messagesRef = ref(db, 'messages');
     const typingRef = ref(db, 'typing');
-    const connectionsRef = ref(db, 'connections');
+    // NOTE: Changed to 'presence' for better tracking
+    const presenceRef = ref(db, 'presence');
     const connectedRef = ref(db, '.info/connected');
 
     const $ = sel => document.querySelector(sel);
@@ -475,8 +523,7 @@
     let currentMsgId = null;
     let currentMsgText = null;
     let longPressTimer;
-    let isLongPressTriggered = false; // Add flag to distinguish long press from click
-    // REMOVED GLOBAL loadedMessages to prevent state leakage
+    let isLongPressTriggered = false; 
     let isUserNearBottom = true;
     let typingTimeout;
     let isSending = false; 
@@ -491,13 +538,18 @@
     const sendBtn = $('#sendBtn');
     const imgLoader = $('#imgLoader');
     
+    // Active User Modals
+    const activeBadge = $('#activeCount');
+    const activeUsersModal = $('#activeUsersModal');
+    const activeUserList = $('#activeUserList');
+    const closeActiveModal = $('#closeActiveModal');
+    
     // Splash Screen & Auto Cleanup
     window.addEventListener('load', () => {
         setTimeout(() => $('#splash-screen').classList.add('hidden'), 2000);
-        cleanupOldMessages(); // Run cleanup on load
+        cleanupOldMessages();
     });
 
-    // --- AUTO DELETE LOGIC (35 Days) ---
     function cleanupOldMessages() {
         const THIRTY_FIVE_DAYS_MS = 35 * 24 * 60 * 60 * 1000;
         const cutoff = Date.now() - THIRTY_FIVE_DAYS_MS;
@@ -550,35 +602,76 @@
         }
     }
 
-    // --- Active User Logic ---
+    // --- Active User Logic (FIXED) ---
+    // 1. Manage my presence
     onValue(connectedRef, (snap) => {
-        if (snap.val() === true) {
-            const con = push(connectionsRef);
-            onDisconnect(con).remove();
-            set(con, true);
-        }
-    });
-    onValue(connectionsRef, (snap) => {
-        const count = snap.size;
-        const badge = $('#activeCount');
-        if(count > 0) {
-            badge.style.display = 'inline-flex';
-            $('#activeNum').textContent = count + ' Active';
-        } else {
-            badge.style.display = 'none';
+        if (snap.val() === true && user) {
+            // Use specific UID ref instead of push to prevent duplicates
+            const myPresence = ref(db, `presence/${user.uid}`);
+            
+            // Remove when disconnected
+            onDisconnect(myPresence).remove();
+            
+            // Set my details
+            set(myPresence, {
+                name: user.name,
+                phone: user.phone,
+                online: true,
+                time: Date.now()
+            });
         }
     });
 
-    // --- MESSAGES RENDER LOGIC (FIXED FOR DUPLICATES) ---
+    // 2. Listen to all presence
+    let activeUsersData = {};
+    onValue(presenceRef, (snap) => {
+        activeUsersData = snap.val() || {};
+        const count = Object.keys(activeUsersData).length;
+        
+        if(count > 0) {
+            activeBadge.style.display = 'inline-flex';
+            $('#activeNum').textContent = count + ' Active';
+        } else {
+            activeBadge.style.display = 'none';
+        }
+    });
+
+    // 3. UI Interactions for Active List
+    activeBadge.addEventListener('click', () => {
+        activeUserList.innerHTML = '';
+        if(Object.keys(activeUsersData).length === 0) {
+            activeUserList.innerHTML = '<div style="padding:10px;text-align:center;color:#999;">কেউ অনলাইনে নেই</div>';
+        } else {
+            Object.values(activeUsersData).forEach(u => {
+                const div = document.createElement('div');
+                div.className = 'user-list-item';
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight:600;">${escapeHtml(u.name)}</div>
+                        <div style="font-size:11px;color:#888;">${escapeHtml(u.phone)}</div>
+                    </div>
+                    <div class="online-indicator"></div>
+                `;
+                activeUserList.appendChild(div);
+            });
+        }
+        activeUsersModal.classList.add('active');
+    });
+
+    closeActiveModal.addEventListener('click', () => {
+        activeUsersModal.classList.remove('active');
+    });
+
+
+    // --- MESSAGES RENDER LOGIC ---
     onValue(messagesRef, (snapshot) => {
         const data = snapshot.val();
-        let loadedMessages = []; // Use local variable
+        let loadedMessages = []; 
         if (data) {
             loadedMessages = Object.keys(data)
                 .map(key => ({ id: key, ...data[key] }))
                 .sort((a, b) => a.time - b.time);
         }
-        // Strict Full Re-render with De-duplication
         renderMessages(loadedMessages);
     });
 
@@ -593,7 +686,6 @@
         }
         if (isTyping) {
             typingInd.classList.add('active');
-            // Append to parent, outside of messages container
             messagesEl.parentNode.appendChild(typingInd); 
             scrollToBottom();
         } else {
@@ -601,7 +693,6 @@
         }
     });
 
-    // Helper: Detect Image URL or Base64
     function isImageContent(txt) {
         if(!txt) return false;
         if(txt.startsWith('data:image/')) return true;
@@ -635,7 +726,7 @@
             const prevM = uniqueMsgs[i-1];
             const nextM = uniqueMsgs[i+1];
 
-            // Mark as seen logic
+            // Mark as seen logic (with Name)
             if (user && !isMe && (!m.seenBy || !m.seenBy[user.uid]) && (uniqueMsgs.length - i <= 10)) {
                markAsSeen(m.id);
             }
@@ -682,10 +773,22 @@
                 
                 let contentHTML;
                 if(isImg) {
-                    // Added data-src for easy access in viewer
                     contentHTML = `<img src="${m.text}" data-src="${m.text}" class="chat-img" loading="lazy" alt="Image" />`;
                 } else {
                     contentHTML = `<div style="white-space:pre-wrap; word-break: break-word;">${escapeHtml(m.text)}</div>`;
+                }
+
+                // Seen By Logic
+                let seenHTML = '';
+                if(isMe && m.seenBy) {
+                    const seenNames = Object.values(m.seenBy)
+                        .map(s => s.name ? s.name.split(' ')[0] : null) // Get first name
+                        .filter(n => n)
+                        .join(', ');
+                    
+                    if(seenNames) {
+                        seenHTML = `<div class="seen-list"><span class="seen-icon">👁️</span>${seenNames}</div>`;
+                    }
                 }
 
                 div.innerHTML = `
@@ -695,6 +798,7 @@
                         ${isMe ? `<span>✓</span>` : ''} 
                         <div class="time">${formatTime(m.time)}</div>
                     </div>
+                    ${seenHTML}
                 `;
                 attachLongPress(div, m.id, m.text, isMe);
             }
@@ -707,9 +811,14 @@
         if (isUserNearBottom) scrollToBottom(true);
     }
 
+    // Updated Mark As Seen (Store Name)
     function markAsSeen(msgId) {
+        if(!user) return;
         const seenRef = ref(db, `messages/${msgId}/seenBy/${user.uid}`);
-        set(seenRef, Date.now()).catch(()=>{});
+        set(seenRef, {
+            name: user.name,
+            time: Date.now()
+        }).catch(()=>{});
     }
 
     // --- INPUT & SENDING ---
@@ -717,10 +826,8 @@
         const text = input.value.trim();
         input.style.height = 'auto';
         input.style.height = (input.scrollHeight) + 'px';
-        
         sendBtn.disabled = text.length === 0;
 
-        // Typing logic
         if(!user) return;
         clearTimeout(typingTimeout);
         const myId = user.uid || user.phoneSafe; 
@@ -737,10 +844,9 @@
     imgInput.addEventListener('change', async (e) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            imgLoader.classList.add('active'); // Show loading
+            imgLoader.classList.add('active'); 
             
             try {
-                // Auto convert/compress
                 const base64Img = await compressImage(file);
                 const confirmSend = confirm("ছবিটি পাঠাতে চান?");
                 if(confirmSend) {
@@ -751,12 +857,11 @@
                 alert("ছবি প্রসেস করতে সমস্যা হয়েছে।");
             } finally {
                 imgLoader.classList.remove('active');
-                imgInput.value = ''; // Reset
+                imgInput.value = '';
             }
         }
     });
 
-    // Compressor Function
     function compressImage(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -844,6 +949,12 @@
         localStorage.setItem(LS_USER, JSON.stringify(u)); 
         user = u; renderUserSmall(); 
         update(ref(db, `users/${u.uid}`), { name: u.name, phone: u.phone, uid: u.uid, lastSeen: Date.now() });
+        // Trigger presence update immediately after save
+        if(user) {
+            const myPresence = ref(db, `presence/${user.uid}`);
+            onDisconnect(myPresence).remove();
+            set(myPresence, { name: user.name, phone: user.phone, online: true, time: Date.now() });
+        }
     }
     function renderUserSmall(){ 
         if(user){ $('#userNameSmall').textContent=user.name; $('#userPhoneSmall').textContent=user.phone; } 
@@ -889,7 +1000,6 @@
     });
 
     function attachLongPress(el, id, text, isMe){
-        // Updated logic to support both long press and normal click
         if(!isMe) return;
         const start = () => { 
             isLongPressTriggered = false;
@@ -915,16 +1025,13 @@
     let startX = 0;
     let startY = 0;
 
-    // Open Viewer on Click
     messagesEl.addEventListener('click', (e) => {
         if(e.target.classList.contains('chat-img')) {
-            // Prevent opening if long press action was just triggered (for own messages)
             if(isLongPressTriggered) {
                 isLongPressTriggered = false;
                 return;
             }
             if(optionsSheet.classList.contains('active')) return;
-            
             const src = e.target.getAttribute('data-src') || e.target.src;
             openViewer(src);
         }
@@ -950,7 +1057,6 @@
         updateTransform();
     }
 
-    // Controls
     $('#vClose').addEventListener('click', closeViewer);
     $('#vReset').addEventListener('click', resetZoom);
     
@@ -963,7 +1069,6 @@
         updateTransform();
     });
 
-    // Download
     $('#vDownload').addEventListener('click', () => {
         const link = document.createElement('a');
         link.href = vImage.src;
@@ -973,7 +1078,6 @@
         document.body.removeChild(link);
     });
 
-    // Panning Logic (Mouse/Touch)
     vContainer.addEventListener('mousedown', (e) => {
         if(scale > 1) {
             pPanning = true;
@@ -992,7 +1096,6 @@
 
     window.addEventListener('mouseup', () => pPanning = false);
 
-    // Touch Panning
     vContainer.addEventListener('touchstart', (e) => {
         if(scale > 1 && e.touches.length === 1) {
             pPanning = true;
@@ -1003,7 +1106,7 @@
 
     window.addEventListener('touchmove', (e) => {
         if(!pPanning) return;
-        if(e.cancelable) e.preventDefault(); // Prevent scrolling bg
+        if(e.cancelable) e.preventDefault();
         pointX = e.touches[0].clientX - startX;
         pointY = e.touches[0].clientY - startY;
         updateTransform();
@@ -1011,7 +1114,6 @@
 
     window.addEventListener('touchend', () => pPanning = false);
 
-    // Double Tap/Click to Zoom
     let lastTap = 0;
     vContainer.addEventListener('click', (e) => {
         const curTime = new Date().getTime();
@@ -1025,7 +1127,6 @@
         lastTap = curTime;
     });
 
-    // Wheel Zoom
     vContainer.addEventListener('wheel', (e) => {
         e.preventDefault();
         if(e.deltaY < 0) scale += 0.1;
@@ -1052,3 +1153,4 @@
   </script>
 </body>
 </html>
+
