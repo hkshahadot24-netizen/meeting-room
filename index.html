@@ -19,7 +19,6 @@
       --input-bg: white;
       --input-box-bg: #fff0f7;
       --border-color: rgba(0,0,0,0.05);
-      --admin-color: #7c3aed; /* Admin Theme Color */
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Bengali', 'Helvetica Neue', Arial;
     }
 
@@ -38,7 +37,6 @@
       --input-bg: #1f2937;
       --input-box-bg: #374151;
       --border-color: rgba(255,255,255,0.1);
-      --admin-color: #a78bfa;
       color: #f3f4f6;
     }
     
@@ -82,8 +80,6 @@
     .wrap {
         max-width: 420px; margin: 0 auto; background: var(--bg); height: 100%;
         display: flex; flex-direction: column; position: relative;
-        /* Depth transition */
-        transition: filter 0.3s ease, transform 0.3s ease;
     }
     @media (min-width: 481px) {
         .wrap {
@@ -108,17 +104,9 @@
         font-size: 10px; background: #dcfce7; color: #166534; padding: 2px 6px; 
         border-radius: 10px; margin-left: 6px; font-weight: 600; vertical-align: middle;
         border: 1px solid #bbf7d0; display: inline-flex; align-items: center; gap: 3px;
-        cursor: pointer; transition: transform 0.2s;
     }
-    .active-badge:active { transform: scale(0.95); }
     [data-theme="dark"] .active-badge { background: #064e3b; color: #6ee7b7; border-color: #065f46; }
     .active-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
-
-    /* Admin Badge */
-    .admin-badge-icon {
-        background: var(--admin-color); color: white; padding: 2px 6px; border-radius: 4px;
-        font-size: 10px; font-weight: 700; margin-left: 5px; vertical-align: middle;
-    }
 
     .header-actions { display: flex; gap: 8px; align-items: center; }
     .icon-btn { 
@@ -126,7 +114,6 @@
         display: flex; align-items: center; justify-content: center; transition: background 0.2s;
     }
     .icon-btn:active { background: var(--input-box-bg); }
-    .icon-btn.admin-btn { color: var(--admin-color); }
 
     /* --- Pinned Message --- */
     #pinnedBanner {
@@ -155,8 +142,7 @@
 
     .messages {
         flex: 1; overflow-y: auto; padding: 10px 16px; display: flex; flex-direction: column;
-        gap: 6px; /* Increased gap slightly for cards */
-        scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+        gap: 2px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
         /* Zoom optimization */
         transform-origin: top center;
     }
@@ -174,40 +160,19 @@
     .empty-state svg { width: 64px; height: 64px; margin-bottom: 12px; opacity: 0.5; }
     .empty-state p { font-size: 14px; color: var(--muted); }
 
-    /* ================================================================
-       ✨ UPDATED: Glassy Smart Message Card Styles
-       ================================================================
-    */
+    /* Message Bubbles */
     .msg {
-        display:block; max-width:80%; padding:10px 14px; border-radius:18px; 
+        display:block; max-width:80%; padding:8px 14px; border-radius:18px; 
         position:relative; word-wrap:break-word; font-size: 15px; 
         line-height: 1.6; word-spacing: 2px;
-        user-select: text; transition: transform 0.1s, background-color 0.2s; cursor: pointer; margin-bottom: 2px;
-        
-        /* Glassmorphism Base properties */
-        backdrop-filter: blur(10px) saturate(160%);
-        -webkit-backdrop-filter: blur(10px) saturate(160%);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.35);
-        border: 1px solid rgba(255,255,255,0.1);
-        
-        /* Entry Animation */
-        animation: msg-enter 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.03); 
+        user-select: text; transition: transform 0.1s; cursor: pointer; margin-bottom: 2px;
+        transition: background-color 0.5s; /* For highlight animation */
     }
-
     .msg:active { transform: scale(0.98); }
     .msg.highlight-anim { background-color: rgba(255, 230, 0, 0.2); transition: background-color 0.1s; }
     
-    /* ⚡ NEW: Long Press Highlight State */
-    .msg.long-press-active {
-        z-index: 110;
-        transform: scale(1.02);
-        box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-        border-color: var(--primary-1);
-    }
-    
-    .msg .sender-name { font-weight: 700; font-size: 11px; color: var(--primary-2); margin-bottom: 4px; display: block; pointer-events: auto;}
-    /* Admin/Moderator styling in name */
-    .sender-name.admin-sender { color: var(--admin-color) !important; }
+    .msg .sender-name { font-weight: 700; font-size: 11px; color: var(--primary-2); margin-bottom: 4px; display: block;}
     
     .msg img.chat-img {
         max-width: 100%; border-radius: 8px; margin-top: 4px; display: block;
@@ -218,66 +183,28 @@
     .msg a { color: var(--primary-2); text-decoration: underline; font-weight: 500; }
     .msg.me a { color: white; }
 
-    /* .msg.me Glass Override (Keeps Gradient, Adds Gloss) */
     .msg.me {
         align-self: flex-end; 
         background: linear-gradient(135deg, var(--primary-1), var(--primary-2)); 
         color: white; 
-        /* Enhance shadow for me messages */
-        box-shadow: 0 8px 20px rgba(255, 45, 85, 0.25), inset 0 1px 0 rgba(255,255,255,0.4);
-        border: none;
     }
     .msg.me.first-of-group { border-bottom-right-radius: 4px; margin-top: 6px; }
     .msg.me.middle-of-group { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
     .msg.me.last-of-group { border-top-right-radius: 4px; border-bottom-right-radius: 18px; margin-bottom: 8px; }
     .msg.me:not(.first-of-group):not(.middle-of-group):not(.last-of-group) { margin-top: 6px; margin-bottom: 8px; }
 
-    /* .msg.you Glass Override (Translucent White) */
     .msg.you {
-        align-self: flex-start; 
-        background: rgba(255, 255, 255, 0.7); 
-        color: var(--msg-text-you); 
-        /* Border is handled by base .msg class */
+        align-self: flex-start; background: var(--msg-bg-you); color: var(--msg-text-you); border: 1px solid var(--input-box-bg);
     }
-    /* Dark Mode You Message */
-    [data-theme="dark"] .msg.you {
-        background: rgba(31, 41, 55, 0.7);
-        border-color: rgba(255,255,255,0.05);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-
     .msg.you.first-of-group { border-bottom-left-radius: 4px; margin-top: 6px; }
     .msg.you.middle-of-group { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
     .msg.you.last-of-group { border-top-left-radius: 4px; border-bottom-left-radius: 18px; margin-bottom: 8px; }
     .msg.you:not(.first-of-group):not(.middle-of-group):not(.last-of-group) { margin-top: 6px; margin-bottom: 8px; }
 
-    .msg.me .meta { color: rgba(255,255,255,0.85); }
+    .msg.me .meta { color: rgba(255,255,255,0.75); }
     .msg.you .meta { color: var(--muted); }
-    .meta { font-size: 9px; display:flex; gap:6px; align-items:center; justify-content: flex-end; margin-top: 4px; opacity: 1; }
+    .meta { font-size: 9px; display:flex; gap:6px; align-items:center; justify-content: flex-end; margin-top: 2px; opacity: 0.8; }
     .edited-label { font-size: 9px; font-style: italic; opacity: 0.8; margin-right: 4px; }
-
-    /* ✨ NEW: Local Love Reaction UI */
-    .local-love-btn {
-        background: none; border: none; padding: 2px; margin-left: 4px; cursor: pointer;
-        display: inline-flex; align-items: center; justify-content: center;
-        color: inherit; opacity: 0.6; transition: all 0.2s;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .local-love-btn:hover { opacity: 1; transform: scale(1.1); }
-    .local-love-btn svg { width: 14px; height: 14px; stroke-width: 2px; }
-    
-    .local-love-btn.active { 
-        color: #ff2d55; opacity: 1; 
-        animation: popHeart 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .msg.me .local-love-btn.active { color: white; }
-    .local-love-btn.active svg { fill: currentColor; stroke: none; }
-
-    @keyframes popHeart {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.4); }
-        100% { transform: scale(1); }
-    }
 
     /* Reply Style inside Bubble */
     .reply-block {
@@ -338,10 +265,6 @@
     .dot:nth-child(2) { animation-delay: -0.16s; }
     @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
     @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes msg-enter {
-        from { opacity: 0; transform: translateY(6px) scale(0.98); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-    }
 
     .scroll-bottom-btn {
         position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
@@ -357,25 +280,6 @@
         display: flex; flex-direction: column; background: var(--header-bg); border-top: 1px solid var(--border-color);
         box-shadow: 0 -1px 3px rgba(0,0,0,0.02); z-index: 20;
     }
-    /* Glassmorphism Overrides */
-    header.app, footer.input, .card, .action-sheet {
-        background: rgba(255, 255, 255, 0.65) !important;
-        backdrop-filter: blur(12px) saturate(160%);
-        -webkit-backdrop-filter: blur(12px) saturate(160%);
-        border: 1px solid rgba(255, 255, 255, 0.35);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
-    }
-    header.app { box-shadow: inset 0 -1px 0 rgba(255,255,255,0.35); }
-    footer.input { box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); }
-    [data-theme="dark"] header.app, 
-    [data-theme="dark"] footer.input,
-    [data-theme="dark"] .card, 
-    [data-theme="dark"] .action-sheet {
-        background: rgba(17, 24, 39, 0.70) !important;
-        border-color: rgba(255, 255, 255, 0.1);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-
     .reply-preview {
         display: none; background: var(--input-box-bg); padding: 8px 12px; font-size: 12px;
         border-bottom: 1px solid var(--border-color); color: var(--muted);
@@ -413,10 +317,6 @@
     .send-btn:disabled {
         background: #e5e7eb; color: #9ca3af; box-shadow: none; cursor: default; transform: scale(0.95);
     }
-    .send-btn:not(:disabled):hover {
-        box-shadow: 0 0 15px rgba(255, 45, 85, 0.6);
-        transform: scale(1.05);
-    }
     [data-theme="dark"] .send-btn:disabled { background: #374151; color: #6b7280; }
     
     /* Loading Overlay */
@@ -431,7 +331,7 @@
 
     /* Modals & Overlays */
     .modal-overlay, .action-sheet-overlay {
-        position:fixed; inset:0; background:rgba(0,0,0,0.3); backdrop-filter:blur(5px);
+        position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(2px);
         display:none; align-items:center; justify-content:center; z-index: 1000;
     }
     .modal-overlay.active, .action-sheet-overlay.active { display: flex; }
@@ -444,46 +344,10 @@
     .sheet-btn { width: 100%; padding: 14px; border: none; background: var(--input-box-bg); border-radius: 12px; font-size: 16px; font-weight: 600; color: var(--primary-2); cursor: pointer; }
     .sheet-btn.danger { color: #ef4444; background: #fee2e2; }
     
-    /* ⚡ NEW: Inline Reaction Popover (Updated: Fixed Position & High Z-Index) */
-    .reaction-popover {
-        position: fixed; /* Changed to fixed to stay above everything */
-        z-index: 10005; /* Max Z-Index */
-        background: rgba(255, 255, 255, 0.95); /* Slightly less transparent */
-        backdrop-filter: blur(12px) saturate(180%);
-        border: 1px solid rgba(255,255,255,0.4);
-        border-radius: 50px;
-        padding: 6px 10px;
-        display: flex;
-        gap: 8px;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.25); /* Enhanced Shadow */
-        animation: scaleIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        pointer-events: auto;
-    }
-    [data-theme="dark"] .reaction-popover {
-        background: rgba(30, 41, 59, 0.95);
-        border-color: rgba(255,255,255,0.1);
-    }
-    @keyframes scaleIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    
-    .pop-emoji {
-        font-size: 24px;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: transform 0.2s;
-        padding: 2px;
-        user-select: none;
-    }
-    .pop-emoji:active { transform: scale(1.3); }
-
-    /* ⚡ NEW: Toast Message */
-    .toast-msg {
-        position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px);
-        background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 30px;
-        font-size: 14px; opacity: 0; pointer-events: none; z-index: 2000;
-        transition: all 0.3s;
-    }
-    .toast-msg.active { opacity: 1; transform: translateX(-50%) translateY(0); }
+    /* Reaction Grid in Action Sheet */
+    .emoji-grid { display: flex; justify-content: space-between; padding: 10px 0; margin-bottom: 10px; }
+    .emoji-btn { font-size: 24px; background: transparent; border: none; cursor: pointer; transition: transform 0.2s; }
+    .emoji-btn:hover { transform: scale(1.2); }
 
     /* Common UI Elements */
     .modal-title { margin:0 0 10px 0; font-size: 20px; font-weight: 700; color: inherit; }
@@ -503,9 +367,20 @@
         opacity: 0; transition: opacity 0.3s;
     }
     .viewer-overlay.active { display: flex; opacity: 1; }
-    .viewer-container { width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: grab; }
+    .viewer-container { 
+        width: 100%; height: 100%; overflow: hidden; 
+        display: flex; align-items: center; justify-content: center; 
+        cursor: grab; 
+        touch-action: none; /* Critical for custom gestures */
+    }
     .viewer-container:active { cursor: grabbing; }
-    .viewer-img { max-width: 100%; max-height: 100%; transition: transform 0.1s ease-out; transform-origin: center center; user-select: none; pointer-events: auto; }
+    .viewer-img { 
+        max-width: 100%; max-height: 100%; 
+        transition: transform 0.1s linear; /* Linear for smooth drag */
+        transform-origin: center center; 
+        user-select: none; pointer-events: none; /* Let container handle events */
+        will-change: transform;
+    }
     .viewer-header {
         position: absolute; top: 0; left: 0; right: 0; padding: 15px;
         display: flex; justify-content: space-between; z-index: 10001;
@@ -517,46 +392,10 @@
         cursor: pointer; backdrop-filter: blur(4px); transition: background 0.2s;
     }
     .v-btn:hover { background: rgba(255,255,255,0.3); }
-    .viewer-controls {
-        position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-        display: flex; gap: 12px; z-index: 10001;
-        background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 30px;
-        backdrop-filter: blur(4px);
-    }
+    /* Manual controls removed as requested */
     
     /* Highlight for Search */
     .highlight { background-color: yellow; color: black; border-radius: 2px; }
-
-    /* Active Badge Breathing */
-    @keyframes breathing-glow {
-        0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-        50% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-    }
-    .active-badge { animation: breathing-glow 2s infinite; }
-
-    /* Shimmer Effect */
-    .msg img.chat-img {
-        background: #f3f4f6;
-        min-height: 120px; 
-        position: relative;
-    }
-    [data-theme="dark"] .msg img.chat-img { background: #374151; }
-    .msg img.chat-img:not([src]), .msg img.chat-img[src=""] {
-        background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite linear;
-    }
-    [data-theme="dark"] .msg img.chat-img:not([src]) {
-        background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
-    }
-    @keyframes shimmer { 100% { background-position: -200% 0; } }
-    .depth-blur {
-        filter: blur(4px) grayscale(0.2);
-        transform: scale(0.98); 
-        pointer-events: none;
-    }
-    button:active, .poll-opt:active { transform: scale(0.97) !important; transition: transform 0.1s; }
   </style>
 </head>
 <body>
@@ -578,9 +417,6 @@
       <div class="loading-text">প্রসেসিং হচ্ছে...</div>
   </div>
 
-  <!-- Toast Message -->
-  <div class="toast-msg" id="toastMsg">টেক্সট কপি করা হয়েছে</div>
-
   <!-- IMAGE VIEWER -->
   <div id="imageViewer" class="viewer-overlay">
       <div class="viewer-header">
@@ -592,11 +428,7 @@
       <div class="viewer-container" id="vContainer">
           <img class="viewer-img" id="vImage" src="" alt="Full View"/>
       </div>
-      <div class="viewer-controls">
-          <button class="v-btn" id="vZoomOut" title="জুম আউট">－</button>
-          <button class="v-btn" id="vReset" title="রিসেট">1:1</button>
-          <button class="v-btn" id="vZoomIn" title="জুম ইন">＋</button>
-      </div>
+      <!-- Manual controls removed -->
   </div>
 
   <div class="wrap" id="app">
@@ -607,14 +439,10 @@
         </svg>
       </div>
       <div class="title">
-        <h1>মিটিং রুম <span id="activeCount" style="display:none;" title="Active Users List" class="active-badge"><div class="active-dot"></div><span id="activeNum">0</span></span></h1>
+        <h1>মিটিং রুম <span id="activeCount" style="display:none;" class="active-badge"><div class="active-dot"></div><span id="activeNum">0</span></span></h1>
         <p>আপনার মতামত জানান</p>
       </div>
       <div class="header-actions">
-        <!-- New Admin Panel Button -->
-        <button class="icon-btn admin-btn" id="adminPanelBtn" title="এডমিন প্যানেল" style="display:none;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-        </button>
         <button class="icon-btn" id="searchToggleBtn" title="খুঁজুন">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         </button>
@@ -705,9 +533,6 @@
       <div class="row">
         <input id="nameInput" placeholder="আপনার নাম" autocomplete="off"/>
         <input id="phoneInput" placeholder="ফোন নম্বর" type="tel" autocomplete="off"/>
-        <!-- New Admin Password Field -->
-        <input id="adminPassInput" placeholder="এডমিন পাসওয়ার্ড (ঐচ্ছিক)" type="password" autocomplete="off" style="margin-top:10px; border-color:var(--admin-color); opacity:0.8;"/>
-        
         <div id="entryError" class="error-msg">দয়া করে নাম এবং ফোন নম্বর দিন</div>
       </div>
       <div class="modal-footer" style="justify-content: center;">
@@ -736,42 +561,22 @@
   <!-- Options Sheet -->
   <div class="action-sheet-overlay" id="optionsSheet">
     <div class="action-sheet">
+        <div style="text-align:center; font-size:13px; color:var(--muted); margin-bottom:4px;">Quick Reactions</div>
+        <div class="emoji-grid">
+            <button class="emoji-btn" data-emoji="👍">👍</button>
+            <button class="emoji-btn" data-emoji="❤️">❤️</button>
+            <button class="emoji-btn" data-emoji="😂">😂</button>
+            <button class="emoji-btn" data-emoji="😮">😮</button>
+            <button class="emoji-btn" data-emoji="😢">😢</button>
+            <button class="emoji-btn" data-emoji="😡">😡</button>
+        </div>
+        
         <button class="sheet-btn" id="optReply">রিপ্লাই (Reply)</button>
-        <button class="sheet-btn" id="optCopy">কপি করুন (Copy)</button>
         <button class="sheet-btn" id="optPin" style="display:none;">পিন করুন (Pin)</button>
         <button class="sheet-btn" id="optEdit">এডিট (Edit)</button>
         <button class="sheet-btn danger" id="optDelete">ডিলেট (Delete)</button>
         <button class="sheet-btn" id="optCancel">বন্ধ করুন</button>
     </div>
-  </div>
-
-  <!-- User Options Sheet (Admin Only) -->
-  <div class="action-sheet-overlay" id="userOptionsSheet">
-      <div class="action-sheet">
-          <h3 style="margin:0;font-size:16px;color:var(--primary-2)" id="uOptName">User Name</h3>
-          <button class="sheet-btn" id="uOptMute">মিউট করুন (Mute)</button>
-          <button class="sheet-btn danger" id="uOptKick">রিমুভ করুন (Kick)</button>
-          <button class="sheet-btn danger" id="uOptBlock">ব্লক করুন (Block)</button>
-          <button class="sheet-btn" id="uOptCancel">বন্ধ করুন</button>
-      </div>
-  </div>
-
-  <!-- Admin Panel Modal -->
-  <div class="modal-overlay" id="adminPanelModal">
-      <div class="card">
-          <h2 class="modal-title" style="color:var(--admin-color)">এডমিন প্যানেল</h2>
-          <div class="modal-body" style="display:flex; flex-direction:column; gap:10px;">
-              <button class="btn-secondary" id="admSysMsg">📢 সিস্টেম মেসেজ পাঠান</button>
-              <button class="btn-secondary" id="admClearPin">📌 পিন রিমুভ / রিসেট করুন</button>
-              <button class="btn-secondary" id="admResetPolls">📊 সব পোল রিসেট</button>
-              <button class="btn-secondary" id="admSummary">📝 আজকের সামারি তৈরি করুন</button>
-              <!-- ✨ NEW: Password Change Button -->
-              <button class="btn-secondary" id="admChangePass" style="border-color:var(--admin-color); color:var(--admin-color)">🔑 পাসওয়ার্ড পরিবর্তন করুন</button>
-          </div>
-          <div class="modal-footer">
-              <button class="btn-primary" id="admClose">বন্ধ করুন</button>
-          </div>
-      </div>
   </div>
 
   <!-- Generic Modal (Seen list, Alerts) -->
@@ -805,11 +610,10 @@
     const db = getDatabase(app);
     const messagesRef = ref(db, 'messages');
     const typingRef = ref(db, 'typing');
-    const activeUsersRef = ref(db, 'activeUsers'); 
+    const activeUsersRef = ref(db, 'activeUsers'); // Changed from connections
     const connectedRef = ref(db, '.info/connected');
     const pinnedRef = ref(db, 'pinnedMessage');
     const summaryRef = ref(db, 'dailySummary');
-    const adminSettingsRef = ref(db, 'adminSettings');
 
     const $ = sel => document.querySelector(sel);
     const $$ = sel => document.querySelectorAll(sel);
@@ -827,15 +631,7 @@
     let replyTo = null; 
     let allMessagesCache = [];
     let isAdmin = false;
-    let notificationSound = new Audio("https://cdn.freesound.org/previews/235/235911_2391840-lq.mp3");
-    
-    // For Inline Reaction Cleanup
-    let currentReactionPopup = null;
-    let currentActiveMsgEl = null;
-
-    // Cache for active users
-    let activeUsersCache = {};
-    let selectedUserForAction = null;
+    let notificationSound = new Audio("https://cdn.freesound.org/previews/235/235911_2391840-lq.mp3"); // Simple pop sound
 
     // --- DOM ---
     const messagesEl = $('#messages');
@@ -853,10 +649,81 @@
     const pinnedText = $('#pinnedText');
     const searchBar = $('#searchBar');
     const searchInput = $('#searchInput');
-    const toastMsg = $('#toastMsg');
+
+    // --- ZOOM LOGIC (Chat List Only) ---
+    let currentZoom = 1;
     
-    // Admin DOM
-    const adminPanelBtn = $('#adminPanelBtn');
+    // 1. Desktop Ctrl+Wheel Zoom
+    messagesEl.addEventListener('wheel', (e) => {
+        if(e.ctrlKey) {
+            e.preventDefault();
+            if(e.deltaY < 0 && currentZoom < 3) currentZoom += 0.1; // Zoom In
+            if(e.deltaY > 0 && currentZoom > 0.5) currentZoom -= 0.1; // Zoom Out
+            applyZoom();
+        }
+    }, { passive: false });
+
+    // 2. Mobile Pinch Zoom (Simple Distance Logic)
+    let initialPinchDistance = null;
+    let initialZoom = 1;
+
+    messagesEl.addEventListener('touchstart', (e) => {
+        if(e.touches.length === 2) {
+            initialPinchDistance = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
+            initialZoom = currentZoom;
+        }
+    }, {passive: true});
+
+    messagesEl.addEventListener('touchmove', (e) => {
+        if(initialPinchDistance && e.touches.length === 2) {
+            e.preventDefault(); // Prevent native page scroll/zoom
+            const currentDistance = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
+            
+            // Calculate scale change
+            const diff = currentDistance / initialPinchDistance;
+            let newZoom = initialZoom * diff;
+            
+            // Limits
+            if(newZoom > 3) newZoom = 3;
+            if(newZoom < 0.5) newZoom = 0.5;
+            
+            currentZoom = newZoom;
+            applyZoom();
+        }
+    }, {passive: false});
+
+    messagesEl.addEventListener('touchend', () => {
+        initialPinchDistance = null;
+    });
+
+    // 3. Double Tap Reset
+    let lastTapTime = 0;
+    messagesEl.addEventListener('click', (e) => {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTapTime;
+        if (tapLength < 300 && tapLength > 0) {
+            currentZoom = 1;
+            applyZoom();
+            e.preventDefault();
+        }
+        lastTapTime = currentTime;
+    });
+
+    function applyZoom() {
+        // Use 'zoom' for Webkit/Android (cleaner layout) or transform for others
+        // Since this is likely a mobile webview/chrome, zoom works best for "App-like"
+        if('zoom' in document.body.style) {
+            messagesEl.style.zoom = currentZoom;
+        } else {
+            messagesEl.style.transform = `scale(${currentZoom})`;
+        }
+    }
 
     // --- INIT ---
     window.addEventListener('load', () => {
@@ -864,21 +731,9 @@
         checkDraft();
         cleanupOldMessages();
         loadTheme();
-        initAdminSettings();
-        if(user) {
-            checkAdmin(user.uid);
-            updateUserLastSeen();
-        }
+        if(user) checkAdmin(user.uid);
+        checkDailySummary();
     });
-
-    // Ensure Admin Password exists in DB
-    function initAdminSettings() {
-        get(adminSettingsRef).then(snap => {
-            if(!snap.exists()) {
-                set(adminSettingsRef, { password: "1234", linkFilter: true });
-            }
-        });
-    }
 
     // --- DARK MODE ---
     function loadTheme(){
@@ -917,28 +772,40 @@
         });
     }
 
-    // --- ADMIN CHECK & ROLES ---
+    // --- ADMIN CHECK ---
     function checkAdmin(uid) {
         onValue(ref(db, `users/${uid}/role`), snap => {
-            const role = snap.val();
-            isAdmin = (role === 'admin');
-            if(isAdmin) {
-                adminPanelBtn.style.display = 'flex';
-            } else {
-                adminPanelBtn.style.display = 'none';
-            }
+            isAdmin = (snap.val() === 'admin');
         });
+    }
+
+    // --- DAILY SUMMARY LOGIC ---
+    function checkDailySummary() {
+        if(!isAdmin) return;
+        const now = new Date();
+        if(now.getHours() < 22) return;
         
-        // Check Blocked State
-        onValue(ref(db, `users/${uid}/blocked`), snap => {
-            if(snap.val() === true) {
-                document.body.innerHTML = `<div style="display:flex;height:100%;align-items:center;justify-content:center;flex-direction:column;background:var(--bg);color:var(--muted)"><h2>🚫 অ্যাক্সেস নেই</h2><p>আপনাকে এই রুম থেকে ব্লক করা হয়েছে।</p></div>`;
+        const todayStr = now.toDateString();
+        get(summaryRef).then(snap => {
+            const data = snap.val() || {};
+            if(!data[todayStr]) {
+                generateAndSaveSummary(todayStr);
             }
         });
     }
 
-    function updateUserLastSeen() {
-        if(user) update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
+    function generateAndSaveSummary(dateKey) {
+        const todayMsgs = allMessagesCache.filter(m => new Date(m.time).toDateString() === dateKey);
+        const pollMsgs = todayMsgs.filter(m => m.type === 'poll');
+        
+        const summary = {
+            date: dateKey,
+            totalMessages: todayMsgs.length,
+            totalPolls: pollMsgs.length,
+            generatedBy: user.name,
+            timestamp: Date.now()
+        };
+        update(ref(db, `dailySummary/${dateKey}`), summary);
     }
 
     // --- VIEWPORT & SCROLL ---
@@ -967,9 +834,10 @@
         if(force || isUserNearBottom) setTimeout(()=>messagesEl.scrollTop = messagesEl.scrollHeight, 50); 
     }
 
-    // --- ACTIVE USER LOGIC ---
+    // --- ACTIVE USER LOGIC (FIXED) ---
     onValue(connectedRef, (snap) => {
         if (snap.val() === true && user) {
+            // Updated to use specific path per UID instead of push()
             const myStatusRef = ref(db, `activeUsers/${user.uid}`);
             set(myStatusRef, { name: user.name, lastActive: Date.now() });
             onDisconnect(myStatusRef).remove();
@@ -978,32 +846,13 @@
 
     onValue(activeUsersRef, (snap) => {
         const data = snap.val() || {};
-        activeUsersCache = data;
-        const count = Object.keys(data).length;
+        const count = Object.keys(data).length; // Counts unique UIDs
         const badge = $('#activeCount');
         
         if(count > 0) {
             badge.style.display = 'inline-flex';
             $('#activeNum').textContent = count + ' Active';
         } else { badge.style.display = 'none'; }
-    });
-    
-    $('#activeCount').addEventListener('click', () => {
-        if(!isAdmin) return; // Only Admin sees full list details
-        const users = Object.values(activeUsersCache);
-        if(users.length === 0) return;
-        
-        const listHtml = users.map(u => `
-            <div style="padding: 10px 0; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:600; font-size:15px;">${escapeHtml(u.name || 'Unknown')}</span>
-                <span style="font-size:11px; color:var(--muted); background:var(--input-box-bg); padding:2px 8px; border-radius:10px;">অনলাইন</span>
-            </div>
-        `).join('');
-        
-        dialog.show(`Active Members (${users.length})`, '', false);
-        $('#dBody').innerHTML = `<div style="max-height:300px; overflow-y:auto">${listHtml}</div>`;
-        $('#dOk').style.display = 'none'; 
-        $('#dCancel').textContent = 'বন্ধ করুন';
     });
 
     onValue(pinnedRef, (snap) => {
@@ -1012,21 +861,7 @@
             pinnedBanner.style.display = 'flex';
             pinnedText.textContent = data.text;
             pinnedBanner.onclick = () => {
-                const onUnpin = isAdmin ? () => {
-                    remove(pinnedRef);
-                } : null;
-
-                dialog.show('পিন করা মেসেজ', data.text + '\n\n— ' + data.sender, false, onUnpin);
-                
-                if(isAdmin) {
-                    $('#dOk').textContent = 'আনপিন করুন';
-                    $('#dOk').style.backgroundColor = '#ef4444';
-                    $('#dOk').style.display = 'block';
-                    $('#dCancel').textContent = 'বন্ধ করুন';
-                } else {
-                    $('#dOk').style.display = 'none';
-                    $('#dCancel').textContent = 'বন্ধ করুন';
-                }
+                dialog.show('পিন করা মেসেজ', data.text + '\n\n— ' + data.sender, false);
             }
         } else {
             pinnedBanner.style.display = 'none';
@@ -1042,9 +877,14 @@
                 .map(key => ({ id: key, ...data[key] }))
                 .sort((a, b) => a.time - b.time);
         }
+        
+        // Play sound if new message arrived since last render and it's not me
+        // Simplified check: if new length > old length. (Better logic needs dedicated tracker, but this is ok for simple)
+        // Ignoring sound for initial load
         applyFilterAndRender();
     });
 
+    // Simple tracker for last message count to trigger sound
     let lastMsgCount = 0;
 
     $('#searchToggleBtn').addEventListener('click', () => {
@@ -1061,6 +901,7 @@
             (m.senderName && m.senderName.toLowerCase().includes(query))
         ) : allMessagesCache;
         
+        // Sound Logic
         if(msgs.length > lastMsgCount && lastMsgCount !== 0) {
              const lastMsg = msgs[msgs.length - 1];
              if(user && lastMsg.uid !== user.uid) {
@@ -1109,7 +950,7 @@
             }
 
             const div = document.createElement('div');
-            div.id = `msg-${m.id}`;
+            div.id = `msg-${m.id}`; // Add ID for scroll to reply
             
             if (m.type === 'poll') {
                 div.className = `msg ${isMe ? 'me' : 'you'}`;
@@ -1151,27 +992,21 @@
                         contentHTML += `<div style="white-space:pre-wrap; word-break: break-word;">${txt}</div>`;
                     }
 
-                    // Seen Text
+                    // --- SEEN LOGIC FIXED (Public Visibility) ---
                     let seenText = '';
                     if(m.seenBy) {
                         const count = Object.keys(m.seenBy).length;
-                        if(count > 0 && isAdmin) seenText = ` • 👁️ ${count}`; // Only admin sees count properly
+                        if(count > 0) seenText = ` • 👁️ ${count}`;
                     }
 
                     const editedHtml = (m.edited) ? `<span class="edited-label">(এডিট করা)</span>` : '';
-                    const heartIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
 
-                    // Admin Badge on Name
-                    const isAdminSender = false; // Logic handled in render time usually, but simplified here
-                    // We can check user role if we had a cache of all users, but for now relying on style injection manually or future update.
-                    
                     div.innerHTML = `
-                        ${showName ? `<div class="sender-name" onclick="showUserOptions('${m.uid}', '${escapeHtml(m.senderName)}')">${escapeHtml(m.senderName)}</div>` : ''}
+                        ${showName ? `<div class="sender-name">${escapeHtml(m.senderName)}</div>` : ''}
                         ${contentHTML}
                         <div class="meta">
                             ${editedHtml}
                             <div class="time" onclick="showSeenList('${m.id}')" style="cursor:pointer">${formatTime(m.time)}${seenText}</div>
-                            <button class="local-love-btn" onclick="toggleLove(this)">${heartIcon}</button>
                             ${isMe ? `<span>✓</span>` : ''} 
                         </div>
                     `;
@@ -1225,7 +1060,7 @@
         });
 
         return `
-            ${!isMe ? `<div class="sender-name" onclick="showUserOptions('${m.uid}', '${escapeHtml(m.senderName)}')">${escapeHtml(m.senderName)}</div>` : ''}
+            ${!isMe ? `<div class="sender-name">${escapeHtml(m.senderName)}</div>` : ''}
             <div class="poll-card">
                 <div style="font-weight:600;font-size:15px;margin-bottom:4px;">📊 ${escapeHtml(m.question)}</div>
                 ${optsHtml}
@@ -1240,7 +1075,8 @@
             opt.addEventListener('click', () => {
                 const idx = parseInt(opt.getAttribute('data-idx'));
                 if(m.votes && m.votes[user.uid] === idx) return; 
-                update(ref(db, `messages/${m.id}/votes/${user.uid}`), idx);
+                // FIXED: Use set instead of update for a single primitive value at a path
+                set(ref(db, `messages/${m.id}/votes/${user.uid}`), idx);
             });
         });
     }
@@ -1250,10 +1086,11 @@
     }
     
     window.showSeenList = (msgId) => {
-        if(!isAdmin) return; // Only admin can see seen list
         const m = allMessagesCache.find(x => x.id === msgId);
-        if(!m || !m.seenBy) return;
-        
+        if(!m || !m.seenBy) {
+            // Optional: Show "Not seen by anyone yet"
+            return;
+        }
         const names = Object.values(m.seenBy).map(x => `<div>• ${x.name} <small style="color:#999">(${formatTime(x.time)})</small></div>`).join('');
         dialog.show('Seen By', '', false);
         $('#dBody').innerHTML = names || 'No info';
@@ -1266,42 +1103,9 @@
             el.scrollIntoView({behavior: 'smooth', block: 'center'});
             el.classList.add('highlight-anim');
             setTimeout(() => el.classList.remove('highlight-anim'), 2000);
+        } else {
+            // alert('মেসেজটি পাওয়া যায়নি বা লোড হয়নি');
         }
-    };
-
-    window.toggleLove = (btn) => {
-        if(window.event) window.event.stopPropagation();
-        btn.classList.toggle('active');
-    };
-
-    // --- USER OPTIONS (Admin Only) ---
-    window.showUserOptions = (targetUid, targetName) => {
-        if(!isAdmin || targetUid === user.uid) return;
-        
-        selectedUserForAction = { uid: targetUid, name: targetName };
-        $('#uOptName').textContent = targetName;
-        $('#userOptionsSheet').classList.add('active');
-    };
-    
-    $('#uOptCancel').onclick = () => $('#userOptionsSheet').classList.remove('active');
-    
-    $('#uOptMute').onclick = () => {
-        update(ref(db, `users/${selectedUserForAction.uid}`), { muted: true });
-        dialog.show('সফল', `${selectedUserForAction.name} কে মিউট করা হয়েছে।`, false);
-        $('#userOptionsSheet').classList.remove('active');
-    };
-    
-    $('#uOptKick').onclick = () => {
-         // Simply removes active session node for visual feedback, real removal needs DB rule or complex logic
-         remove(ref(db, `activeUsers/${selectedUserForAction.uid}`));
-         dialog.show('সফল', `${selectedUserForAction.name} কে কিক করা হয়েছে।`, false);
-         $('#userOptionsSheet').classList.remove('active');
-    };
-
-    $('#uOptBlock').onclick = () => {
-         update(ref(db, `users/${selectedUserForAction.uid}`), { blocked: true });
-         dialog.show('সফল', `${selectedUserForAction.name} কে ব্লক করা হয়েছে।`, false);
-         $('#userOptionsSheet').classList.remove('active');
     };
 
     // --- TYPING ---
@@ -1330,31 +1134,10 @@
         typingTimeout = setTimeout(() => remove(ref(db, `typing/${user.uid}`)), 2000);
     }
     
-    sendBtn.addEventListener('click', (e) => { e.preventDefault(); checkMuteAndSend(); });
+    sendBtn.addEventListener('click', (e) => { e.preventDefault(); sendMessage(); });
     input.addEventListener('keydown', (e)=>{ 
-        if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); if(!sendBtn.disabled) checkMuteAndSend(); } 
+        if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); if(!sendBtn.disabled) sendMessage(); } 
     });
-
-    async function checkMuteAndSend(content=null, isImage=false, type='text', extra={}) {
-        if(!user) { showEntry(false); return; }
-        
-        // 1. Check Mute Status
-        const muteSnap = await get(ref(db, `users/${user.uid}/muted`));
-        if(muteSnap.val() === true) {
-            dialog.show('দুঃখিত', 'আপনাকে মিউট করা হয়েছে। আপনি মেসেজ পাঠাতে পারবেন না।', false);
-            return;
-        }
-
-        // 2. Spam Check (Rate Limiting)
-        // Simple client side check - last 5 msgs from me in last 10 seconds?
-        const myRecentMsgs = allMessagesCache.filter(m => m.uid === user.uid && m.time > Date.now() - 10000);
-        if(myRecentMsgs.length > 5 && !isAdmin) {
-             dialog.show('স্প্যাম সতর্কতা', 'দয়া করে এত দ্রুত মেসেজ পাঠাবেন না।', false);
-             return;
-        }
-
-        sendMessage(content, isImage, type, extra);
-    }
 
     // Image
     const imgInput = $('#imgInput');
@@ -1364,13 +1147,14 @@
             imgLoader.classList.add('active');
             try {
                 const base64 = await compressImage(e.target.files[0]);
-                if(confirm("ছবিটি পাঠাতে চান?")) checkMuteAndSend(base64, true);
+                if(confirm("ছবিটি পাঠাতে চান?")) sendMessage(base64, true);
             } catch (err) { alert("Error processing image"); } 
             finally { imgLoader.classList.remove('active'); imgInput.value = ''; }
         }
     });
 
     function sendMessage(content = null, isImage = false, type = 'text', extraData = {}){ 
+      if(!user){ showEntry(false); return; }
       if(isSending) return; 
       
       const text = isImage ? content : input.value.trim(); 
@@ -1409,7 +1193,7 @@
         
         if(!q || opts.length < 2) { alert("প্রশ্ন এবং অন্তত ২টি অপশন দিন"); return; }
         
-        checkMuteAndSend(null, false, 'poll', {
+        sendMessage(null, false, 'poll', {
             question: q,
             options: opts,
             votes: {} 
@@ -1420,7 +1204,7 @@
         $$('.poll-opt-input').forEach(i => i.value = '');
     });
 
-    // --- ACTIONS (Long Press & Menu) ---
+    // --- ACTIONS ---
     function startReply(msg) {
         replyTo = { id: msg.id, name: msg.senderName, text: msg.text };
         replyToName.textContent = msg.senderName;
@@ -1438,138 +1222,50 @@
             isLongPressTriggered = false;
             longPressTimer = setTimeout(() => {
                 isLongPressTriggered = true;
-                showContextualMenu(el, m);
-            }, 500); 
+                showOptions(m);
+            }, 600); 
         };
         const end = () => { clearTimeout(longPressTimer); };
-        
-        el.addEventListener('touchstart', start, {passive: true});
-        el.addEventListener('touchend', end); 
-        el.addEventListener('touchmove', end);
-        el.addEventListener('mousedown', start);
-        el.addEventListener('mouseup', end);
-        el.addEventListener('mouseleave', end);
-        el.addEventListener('contextmenu', e => { e.preventDefault(); showContextualMenu(el, m); });
+        el.addEventListener('mousedown', start); el.addEventListener('touchstart', start, {passive: true});
+        el.addEventListener('mouseup', end); el.addEventListener('mouseleave', end); el.addEventListener('touchend', end); el.addEventListener('touchmove', end);
+        el.addEventListener('contextmenu', e => { e.preventDefault(); });
     }
 
-    // ✅ FIX: Long Press Bug Resolved + Admin Powers
-    function showContextualMenu(el, m){
+    function showOptions(m){
         currentMsgId = m.id; currentMsgData = m;
-        currentActiveMsgEl = el;
-        
         if(navigator.vibrate) navigator.vibrate(50);
         
-        el.classList.add('long-press-active');
-        renderInlineReactions(el, m);
-
         const isMe = user.uid === m.uid;
-        
-        // Admin or Owner Logic
-        $('#optDelete').style.display = (isMe || isAdmin) ? 'block' : 'none';
-        $('#optEdit').style.display = ((isMe || isAdmin) && !isImageContent(m.text) && m.type !== 'poll') ? 'block' : 'none';
+        // UPDATED: Only user can delete their own message. Removed isAdmin check for delete.
+        $('#optDelete').style.display = (isMe) ? 'block' : 'none';
+        $('#optEdit').style.display = (isMe && !isImageContent(m.text) && m.type !== 'poll') ? 'block' : 'none';
         $('#optPin').style.display = (isAdmin) ? 'block' : 'none';
         
-        $('#optionsSheet').classList.add('active');
-    }
-
-    // ✅ FIX: Improved Reaction Handler
-    function renderInlineReactions(targetEl, m) {
-        if(currentReactionPopup) currentReactionPopup.remove();
-
-        const rect = targetEl.getBoundingClientRect();
-        const popup = document.createElement('div');
-        popup.className = 'reaction-popover';
-        
-        const emojis = ['❤️', '😂', '😮', '😢', '👍', '😡'];
-        emojis.forEach(e => {
-            const btn = document.createElement('button');
-            btn.className = 'pop-emoji';
-            btn.textContent = e;
-            // IMPORTANT: Stop propagation to prevent menu closing immediately
-            btn.addEventListener('click', (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation(); 
-                reactToMessage(m.id, e);
+        const emojis = document.querySelectorAll('.emoji-btn');
+        emojis.forEach(btn => {
+            btn.onclick = () => {
+                reactToMessage(m.id, btn.getAttribute('data-emoji'));
                 hideOptions();
-            });
-            // Touch specific fix
-            btn.addEventListener('touchend', (ev) => {
-                 ev.preventDefault();
-                 ev.stopPropagation();
-                 reactToMessage(m.id, e);
-                 hideOptions();
-            });
-            popup.appendChild(btn);
+            };
         });
 
-        document.body.appendChild(popup); // Append to body to avoid clipping
-        currentReactionPopup = popup;
-
-        const popHeight = 50; 
-        
-        // Fixed positioning logic - using rect directly since it's viewport relative
-        let top = rect.top - popHeight - 15; // 15px gap above message
-        let left = rect.left;
-        
-        // Boundary checks
-        if(top < 10) top = rect.bottom + 10; // If too close to top edge, show below
-        if(left + popup.offsetWidth > window.innerWidth) left = window.innerWidth - popup.offsetWidth - 10;
-        if(left < 10) left = 10;
-
-        popup.style.top = `${top}px`;
-        popup.style.left = `${left}px`;
+        $('#optionsSheet').classList.add('active');
     }
-
-    function hideOptions(){ 
-        $('#optionsSheet').classList.remove('active'); 
-        if(currentActiveMsgEl) {
-            currentActiveMsgEl.classList.remove('long-press-active');
-            currentActiveMsgEl = null;
-        }
-        if(currentReactionPopup) {
-            currentReactionPopup.remove();
-            currentReactionPopup = null;
-        }
-        currentMsgId = null; 
-    }
-    
+    function hideOptions(){ $('#optionsSheet').classList.remove('active'); currentMsgId = null; }
     $('#optCancel').addEventListener('click', hideOptions);
-    $('.action-sheet-overlay').addEventListener('click', (e)=>{ 
-        if(e.target.classList.contains('action-sheet-overlay')) hideOptions(); 
-    });
+    $('.action-sheet-overlay').addEventListener('click', (e)=>{ if(e.target.classList.contains('action-sheet-overlay')) hideOptions(); });
     
     $('#optReply').addEventListener('click', () => {
         if(currentMsgData) startReply(currentMsgData);
         hideOptions();
     });
 
-    $('#optCopy').addEventListener('click', async () => {
-        if(currentMsgData && currentMsgData.text) {
-            try {
-                await navigator.clipboard.writeText(currentMsgData.text);
-            } catch (err) {
-                const ta = document.createElement('textarea');
-                ta.value = currentMsgData.text;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-            }
-            showToast();
-        }
-        hideOptions();
-    });
-
-    function showToast() {
-        toastMsg.classList.add('active');
-        setTimeout(() => toastMsg.classList.remove('active'), 2000);
-    }
-
     $('#optEdit').addEventListener('click', ()=>{
         if(!currentMsgId) return; const m = currentMsgData; hideOptions();
         
-        // Admin can edit old messages too, regular users limited to 5 mins
-        if (!isAdmin && Date.now() - m.time > 5 * 60 * 1000) {
+        if(m.uid !== user.uid) return; // Logic Guard
+
+        if (Date.now() - m.time > 5 * 60 * 1000) {
             dialog.show('দুঃখিত', 'মেসেজ ৫ মিনিটের বেশি পুরোনো হলে এডিট করা যায় না।', false);
             return;
         }
@@ -1582,6 +1278,7 @@
     
     $('#optDelete').addEventListener('click', ()=>{
         if(!currentMsgId) return; const id = currentMsgId; hideOptions();
+        if(currentMsgData.uid !== user.uid) return; // Logic Guard
         dialog.confirm('মুছে ফেলতে চান?', ()=>{ update(ref(db, `messages/${id}`), { deleted: true, text: '' }); });
     });
 
@@ -1599,106 +1296,34 @@
         });
     }
 
-    // --- USER AUTH & ADMIN LOGIC ---
     function safePhone(p) { return p.replace(/[.#$/[\]]/g, '_'); }
-    
-    async function saveUser(u, adminPass){ 
+    function saveUser(u){ 
         u.phoneSafe = safePhone(u.phone);
         if(!u.uid) u.uid = u.phoneSafe; 
-        
-        // ✅ Password Check Logic
-        if(adminPass) {
-             const passSnap = await get(ref(db, 'adminSettings/password'));
-             if(passSnap.val() === adminPass) {
-                 u.role = 'admin';
-                 alert('স্বাগতম এডমিন!');
-             } else {
-                 alert('ভুল এডমিন পাসওয়ার্ড!');
-                 return; // Stop login if password attempted but wrong
-             }
-        }
-
         localStorage.setItem(LS_USER, JSON.stringify(u)); 
-        user = u; 
-        
-        const updates = { name: u.name, phone: u.phone, uid: u.uid, lastSeen: Date.now() };
-        if(u.role) updates.role = u.role;
-        
-        update(ref(db, `users/${u.uid}`), updates);
+        user = u; renderUserSmall(); 
+        update(ref(db, `users/${u.uid}`), { name: u.name, phone: u.phone, uid: u.uid, lastSeen: Date.now() });
         checkAdmin(u.uid);
     }
-
+    function renderUserSmall(){ 
+        if(user){ 
+             // Updated logic
+        } 
+    }
     function showEntry(isEdit = false){ 
         entryModal.classList.add('active');
         $('#nameInput').value = isEdit && user ? user.name : '';
         $('#phoneInput').value = isEdit && user ? user.phone : '';
-        $('#adminPassInput').value = ''; // Reset password field
         $('#entryError').style.display = 'none';
         $('#entryTitle').textContent = isEdit ? 'প্রোফাইল এডিট' : 'স্বাগতম!';
         $('#enterBtn').textContent = isEdit ? 'সেভ করুন' : 'প্রবেশ করুন';
     }
     function hideEntry(){ entryModal.classList.remove('active'); }
     $('#headerProfile').addEventListener('click', () => showEntry(true));
-    
     $('#enterBtn').addEventListener('click', ()=>{ 
-      const name = $('#nameInput').value.trim(); 
-      const phone = $('#phoneInput').value.trim(); 
-      const pass = $('#adminPassInput').value.trim();
-      
+      const name = $('#nameInput').value.trim(); const phone = $('#phoneInput').value.trim(); 
       if(!name || !phone){ $('#entryError').style.display = 'block'; return; } 
-      
-      const updatedUser = user ? { ...user, name, phone } : { name, phone };
-      saveUser(updatedUser, pass); 
-      hideEntry(); 
-    });
-
-    // --- ADMIN PANEL HANDLERS ---
-    adminPanelBtn.addEventListener('click', () => $('#adminPanelModal').classList.add('active'));
-    $('#admClose').addEventListener('click', () => $('#adminPanelModal').classList.remove('active'));
-
-    $('#admSysMsg').addEventListener('click', () => {
-        dialog.prompt('সিস্টেম মেসেজ লিখুন:', '', (txt) => {
-            if(txt) sendMessage(txt, false, 'system');
-        });
-    });
-    
-    // ✅ Updated: Admin Clear/Reset Pin Handler
-    $('#admClearPin').addEventListener('click', () => {
-        remove(pinnedRef);
-        dialog.show('সফল', 'পিন রিমুভ / রিসেট করা হয়েছে', false);
-        $('#adminPanelModal').classList.remove('active');
-    });
-
-    $('#admResetPolls').addEventListener('click', () => {
-        dialog.confirm('সতর্কতা: সব পোল ডিলিট হবে না, কিন্তু পুরনো হিসেবে গণ্য হবে।', () => {
-             // Complex logic skipped for simplicity, just alerting
-             alert('এই ফিচারটি পরবর্তী আপডেটে আসবে। ম্যানুয়ালি মেসেজ ডিলিট করুন।');
-        });
-    });
-    
-    $('#admSummary').addEventListener('click', () => {
-        const today = new Date().toDateString();
-        const todayMsgs = allMessagesCache.filter(m => new Date(m.time).toDateString() === today);
-        const count = todayMsgs.length;
-        const msg = `📅 ডেইলি সামারি (${today}):\nমোট মেসেজ: ${count}টি।\nধন্যবাদ সবাইকে!`;
-        sendMessage(msg, false, 'system');
-        $('#adminPanelModal').classList.remove('active');
-    });
-
-    // ✨ NEW: Password Change Handler
-    $('#admChangePass').addEventListener('click', () => {
-        dialog.prompt('নতুন এডমিন পাসওয়ার্ড দিন:', '', (newPass) => {
-            if(newPass && newPass.trim().length >= 4) {
-                update(ref(db, 'adminSettings'), { password: newPass.trim() })
-                    .then(() => {
-                        dialog.show('সফল', 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।', false);
-                        $('#adminPanelModal').classList.remove('active');
-                    })
-                    .catch((err) => dialog.show('ত্রুটি', 'পাসওয়ার্ড পরিবর্তন করা যায়নি।', false));
-            } else {
-                alert('পাসওয়ার্ড অন্তত ৪ অক্ষরের হতে হবে।');
-            }
-        });
+      saveUser({ name, phone, uid: user ? user.uid : null }); hideEntry(); 
     });
 
     // --- HELPERS ---
@@ -1725,19 +1350,102 @@
     function formatTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
     function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     
-    // Viewer
+    // --- UPDATED IMAGE VIEWER (GESTURES ONLY - NO BUTTONS) ---
+    const vOverlay = $('#imageViewer');
+    const vImg = $('#vImage');
+    const vContainer = $('#vContainer');
+    let vScale = 1, vPanning = false, vPointX = 0, vPointY = 0, vStartPointX = 0, vStartPointY = 0;
+    
+    // Button Logic (Only Close and Download remain)
+    $('#vClose').onclick = () => closeViewer();
+    $('#vDownload').onclick = () => {
+        const link = document.createElement('a'); link.href = vImg.src; link.download = `image-${Date.now()}.jpg`; link.click();
+    };
+
     messagesEl.addEventListener('click', (e) => {
         if(e.target.classList.contains('chat-img') && !isLongPressTriggered) {
-             $('#vImage').src = e.target.getAttribute('data-src'); 
-             $('#imageViewer').classList.add('active');
-             appContainer.classList.add('depth-blur');
+             vImg.src = e.target.getAttribute('data-src');
+             vOverlay.classList.add('active');
+             resetViewer();
         }
     });
-    $('#vClose').onclick = () => { 
-        $('#imageViewer').classList.remove('active'); 
-        $('#vImage').src=''; 
-        appContainer.classList.remove('depth-blur');
+
+    function closeViewer() {
+        vOverlay.classList.remove('active');
+        vImg.src='';
+        resetViewer();
+    }
+    
+    function resetViewer() {
+        vScale = 1; vPointX = 0; vPointY = 0; vPanning = false;
+        updateTransform();
+    }
+    
+    function updateTransform() {
+        vImg.style.transform = `translate(${vPointX}px, ${vPointY}px) scale(${vScale})`;
+    }
+
+    // Touch Handling for Pinch & Drag
+    let evCache = [];
+    let prevDiff = -1;
+
+    vContainer.onpointerdown = (ev) => {
+        ev.preventDefault();
+        vContainer.setPointerCapture(ev.pointerId);
+        evCache.push(ev);
+        if (evCache.length === 1) {
+            vPanning = true;
+            // Calculate start point relative to current image position
+            vStartPointX = ev.clientX - vPointX;
+            vStartPointY = ev.clientY - vPointY;
+        }
     };
+
+    vContainer.onpointermove = (ev) => {
+        ev.preventDefault();
+        const index = evCache.findIndex(cachedEv => cachedEv.pointerId === ev.pointerId);
+        if (index > -1) evCache[index] = ev;
+
+        if (evCache.length === 2) {
+            // Pinch Logic
+            vPanning = false; // Disable pan while zooming
+            const curDiff = Math.hypot(evCache[0].clientX - evCache[1].clientX, evCache[0].clientY - evCache[1].clientY);
+            if (prevDiff > 0) {
+                if (curDiff > prevDiff) vScale += 0.05;
+                if (curDiff < prevDiff && vScale > 0.5) vScale -= 0.05;
+            }
+            prevDiff = curDiff;
+            updateTransform();
+        } else if (evCache.length === 1 && vPanning) {
+            // Drag Logic
+            vPointX = ev.clientX - vStartPointX;
+            vPointY = ev.clientY - vStartPointY;
+            updateTransform();
+        }
+    };
+
+    vContainer.onpointerup = (ev) => {
+        removeEvent(ev);
+        if (evCache.length < 2) prevDiff = -1;
+        if (evCache.length === 0) vPanning = false;
+    };
+    vContainer.onpointercancel = vContainer.onpointerup;
+    vContainer.onpointerout = vContainer.onpointerup;
+    vContainer.onpointerleave = vContainer.onpointerup;
+
+    function removeEvent(ev) {
+        const index = evCache.findIndex(cachedEv => cachedEv.pointerId === ev.pointerId);
+        if (index > -1) evCache.splice(index, 1);
+    }
+    
+    // Desktop Wheel Zoom for Viewer
+    vContainer.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if(e.deltaY < 0) vScale += 0.2;
+        else if(vScale > 0.5) vScale -= 0.2;
+        updateTransform();
+    }, {passive: false});
+
 
     // Generic Dialog
     const dialog = {
@@ -1753,7 +1461,7 @@
       prompt(msg, def, onEnter){ this.input.value=def||''; this.show('এডিট', msg, true, onEnter); setTimeout(()=>this.input.focus(),100); }
     };
 
-    if(!user) showEntry(false); else { hideEntry(); }
+    if(!user) showEntry(false); else { hideEntry(); renderUserSmall(); }
   </script>
 </body>
 </html>
